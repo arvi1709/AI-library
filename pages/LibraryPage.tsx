@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { RESOURCES } from '../constants';
@@ -12,6 +10,7 @@ const LibraryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showAllTags, setShowAllTags] = useState(false);
   const { stories, likes } = useAuth();
 
   useEffect(() => {
@@ -28,7 +27,7 @@ const LibraryPage: React.FC = () => {
     return [...RESOURCES, ...publishedStories];
   }, [stories]);
 
-  const categories = useMemo(() => ['All', ...Array.from(new Set(allResources.map(r => r.category)))], [allResources]);
+  const categories = useMemo(() => ['All', ...Array.from(new Set(allResources.flatMap(r => Array.isArray(r.category) ? r.category : [r.category])))], [allResources]);
   
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -44,7 +43,7 @@ const LibraryPage: React.FC = () => {
 
   const filteredResources = useMemo((): Resource[] => {
     return allResources.filter(resource => {
-      const matchesCategory = selectedCategory === 'All' || resource.category === selectedCategory;
+      const matchesCategory = selectedCategory === 'All' || (Array.isArray(resource.category) ? resource.category.includes(selectedCategory) : resource.category === selectedCategory);
       const lowerCaseQuery = searchQuery.toLowerCase();
       const matchesSearch = 
         searchQuery.trim() === '' ||
@@ -89,21 +88,33 @@ const LibraryPage: React.FC = () => {
             ))}
           </div>
           {allTags.length > 0 && (
-            <div className="mt-4 pt-4 border-t dark:border-slate-700 flex flex-wrap gap-2">
-              <p className="w-full text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Filter by Tags:</p>
-              {allTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => handleTagClick(tag)}
-                  className={`px-3 py-1 text-sm font-medium rounded-full transition-colors duration-200 ${
-                    selectedTags.includes(tag)
-                      ? 'bg-brand-orange text-white'
-                      : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
+            <div className="mt-4 pt-4 border-t dark:border-slate-700">
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Filter by Tags:</p>
+                {allTags.length > 10 && (
+                  <button
+                    onClick={() => setShowAllTags(!showAllTags)}
+                    className="text-sm font-semibold text-brand-orange hover:underline"
+                  >
+                    {showAllTags ? 'Show Less' : 'Show More'}
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(showAllTags ? allTags : allTags.slice(0, 10)).map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagClick(tag)}
+                    className={`px-3 py-1 text-sm font-medium rounded-full transition-colors duration-200 ${
+                      selectedTags.includes(tag)
+                        ? 'bg-brand-orange text-white'
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
       </div>

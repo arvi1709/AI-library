@@ -6,7 +6,7 @@ export const RESOURCES: Resource[] = [
   {
     id: '1',
     title: 'The Future of Renewable Energy',
-    category: 'Science',
+    category: ['Science'],
     shortDescription: 'An in-depth look at solar, wind, and geothermal energy sources.',
     content: 'Renewable energy is derived from natural sources that are replenished on a human timescale. The main forms of renewable energy are solar, wind, geothermal, hydropower, and biomass. In 2020, renewable energy sources accounted for about 12.6% of total U.S. energy consumption and about 19.8% of electricity generation. The push towards a sustainable future has accelerated research and development in this field, with significant improvements in efficiency and cost-effectiveness. Solar panels, for instance, have seen a drastic price reduction over the past decade, making them more accessible for both residential and commercial use. Wind turbines are becoming larger and more powerful, capable of powering thousands of homes. Geothermal energy taps into the Earth\'s internal heat, offering a consistent and reliable power source. The transition to renewable energy is crucial for combating climate change and reducing our reliance on fossil fuels.',
     imageUrl: 'https://picsum.photos/seed/science/400/300',
@@ -17,7 +17,7 @@ export const RESOURCES: Resource[] = [
   {
     id: '2',
     title: 'A Brief History of Classical Music',
-    category: 'Arts',
+    category: ['Arts'],
     shortDescription: 'From the Baroque period to the Romantic era, explore the masters.',
     content: 'Classical music is a broad term that usually refers to the standard music of countries in the Western world. It is music that has been composed by musicians who are trained in the art of writing music and written down in music notation so that other musicians can play it. The history of classical music is often divided into stylistic periods. The Baroque period (1600-1750) was characterized by its ornate detail, with composers like Bach and Handel leading the way. The Classical period (1750-1820) followed, emphasizing elegance and balance, with Mozart and Haydn as its most famous composers. The Romantic era (1820-1900) brought intense emotion and individualism, with giants like Beethoven, Chopin, and Wagner. Each period contributed unique forms, structures, and emotional palettes to the rich tapestry of classical music.',
     imageUrl: 'https://picsum.photos/seed/arts/400/300',
@@ -28,7 +28,7 @@ export const RESOURCES: Resource[] = [
   {
     id: '3',
     title: 'The Rise of Artificial Intelligence',
-    category: 'Technology',
+    category: ['Technology'],
     shortDescription: 'Understanding machine learning, neural networks, and their impact.',
     content: 'Artificial intelligence (AI) is the simulation of human intelligence processes by machines, especially computer systems. These processes include learning, reasoning, and self-correction. Particular applications of AI include expert systems, natural language processing (NLP), speech recognition, and machine vision. The field has seen exponential growth in recent years, largely due to the availability of large datasets and advancements in computational power. Machine learning, a subset of AI, allows systems to automatically learn and improve from experience without being explicitly programmed. Deep learning, a further subset, utilizes neural networks with many layers to analyze complex patterns in data, powering everything from self-driving cars to medical diagnostics. The societal impact of AI is profound, raising important ethical questions while offering unprecedented opportunities for innovation.',
     imageUrl: 'https://picsum.photos/seed/tech/400/300',
@@ -39,7 +39,7 @@ export const RESOURCES: Resource[] = [
   {
     id: '4',
     title: 'Global Economic Trends in the 21st Century',
-    category: 'Economics',
+    category: ['Economics'],
     shortDescription: 'Analyzing globalization, emerging markets, and digital currencies.',
     content: 'The 21st-century global economy is characterized by increasing interconnectedness, rapid technological change, and the rise of emerging markets. Globalization has facilitated the flow of goods, services, capital, and information across borders, but has also created challenges related to inequality and economic volatility. Emerging economies, particularly in Asia, have become major engines of global growth. The digital revolution has transformed industries, with e-commerce, digital payments, and cryptocurrencies like Bitcoin challenging traditional financial systems. Central banks are exploring the issuance of their own digital currencies (CBDCs). Key challenges facing the global economy include climate change, geopolitical tensions, and the need to ensure that economic growth is inclusive and sustainable.',
     imageUrl: 'https://picsum.photos/seed/economics/400/300',

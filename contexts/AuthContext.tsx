@@ -1,14 +1,16 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { 
-  collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, setDoc, updateDoc, getDoc 
+  collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, setDoc, updateDoc, getDoc, deleteDoc 
 } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  deleteUser
 } from 'firebase/auth';
 import type { User, Resource, Comment, Report, EmpathyRating } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -16,6 +18,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
+  users: User[];
   stories: Resource[];
   comments: Comment[];
   likes: Record<string, string[]>;
@@ -24,15 +27,18 @@ interface AuthContextType {
   empathyRatings: Record<string, EmpathyRating[]>;
   login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
-  signup: (email: string, pass: string) => Promise<any>;
-  addStory: (storyData: Pick<Resource, 'title' | 'category' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName'>) => Promise<void>;
-  updateStory: (storyId: string, updates: Partial<Omit<Resource, 'id'>>) => void;
+  signup: (email: string, pass: string, name: string, imageFile: File | null) => Promise<any>;
+  addStory: (storyData: Pick<Resource, 'title' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName' | 'category' | 'status'>) => Promise<void>;
+  updateStory: (storyId: string, updates: Partial<Omit<Resource, 'id'>>) => Promise<void>;
   addComment: (resourceId: string, text: string) => Promise<void>;
   toggleLike: (resourceId: string) => Promise<void>;
   reportContent: (resourceId: string, resourceTitle: string) => Promise<void>;
   updateUserProfile: (name: string, imageFile: File | null) => Promise<void>;
   toggleBookmark: (resourceId: string) => Promise<void>;
   rateEmpathy: (resourceId: string, rating: number) => Promise<void>;
+  deleteComment: (commentId: string) => Promise<void>;
+  deleteStory: (storyId: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,6 +46,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([]);
   const [stories, setStories] = useState<Resource[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [likes, setLikes] = useState<Record<string, string[]>>({});
@@ -47,36 +54,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [empathyRatings, setEmpathyRatings] = useState<Record<string, EmpathyRating[]>>({});
 
-  // 🔐 Handle Authentication State
+    // 🔐 Handle Authentication State
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const storedProfile = localStorage.getItem(`profile_${user.uid}`);
-        let name = user.displayName || user.email?.split('@')[0] || 'User';
-        let imageUrl = `https://picsum.photos/seed/${user.uid}/200/200`;
+        const userDocRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userDocRef);
 
-        if (storedProfile) {
-          try {
-            const customProfile = JSON.parse(storedProfile);
-            name = customProfile.name || name;
-            imageUrl = customProfile.imageUrl || imageUrl;
-          } catch (e) {
-            console.error("Failed to parse stored profile", e);
-          }
+        let name = user.displayName || user.email?.split('@')[0] || 'User';
+        let imageUrl = user.photoURL || `https://picsum.photos/seed/${user.uid}/200/200`;
+        let bookmarks: string[] = [];
+
+        if (snap.exists()) {
+          const data = snap.data();
+          name = data.name || name;
+          imageUrl = data.imageUrl || imageUrl;
+          bookmarks = data.bookmarks || [];
+        } else {
+          // Create user doc if it doesn't exist, ensuring all fields are present
+          await setDoc(userDocRef, {
+            uid: user.uid,
+            name,
+            email: user.email,
+            imageUrl,
+            bookmarks: []
+          }, { merge: true });
         }
 
         setCurrentUser({ uid: user.uid, email: user.email, name, imageUrl });
-
-        // 🔁 Sync bookmarks from Firestore
-        const userDocRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userDocRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          setBookmarks(data.bookmarks || []);
-        } else {
-          await setDoc(userDocRef, { bookmarks: [] });
-          setBookmarks([]);
-        }
+        setBookmarks(bookmarks);
       } else {
         setCurrentUser(null);
         setBookmarks([]);
@@ -88,6 +94,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // 🔁 Real-time sync for all collections
   useEffect(() => {
+    const unsubUsers = onSnapshot(collection(db, "users"), (snapshot) => {
+      const userList: User[] = snapshot.docs.map(doc => doc.data() as User);
+      setUsers(userList);
+    });
+
     const unsubStories = onSnapshot(query(collection(db, "stories"), orderBy("createdAt", "desc")), (snapshot) => {
       const storyList: Resource[] = snapshot.docs.map(doc => ({
         ...(doc.data() as Resource),
@@ -97,7 +108,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     const unsubComments = onSnapshot(collection(db, "comments"), (snapshot) => {
-      const commentList: Comment[] = snapshot.docs.map(doc => doc.data() as Comment);
+      const commentList: Comment[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Comment, 'id'>)
+      }));
       setComments(commentList);
     });
 
@@ -128,32 +142,64 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       unsubLikes();
       unsubReports();
       unsubEmpathy();
+      unsubUsers();
     };
   }, []);
 
   // 🔧 Auth Actions
   const login = useCallback((email: string, password: string) => signInWithEmailAndPassword(auth, email, password), []);
-  const signup = useCallback((email: string, password: string) => createUserWithEmailAndPassword(auth, email, password), []);
+  
+  const signup = useCallback(async (email: string, password: string, name: string, imageFile: File | null) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    let imageUrl = `https://picsum.photos/seed/${user.uid}/200/200`;
+
+    if (imageFile) {
+      const storage = getStorage();
+      const storageRef = ref(storage, `profile_images/${user.uid}`);
+      await uploadBytes(storageRef, imageFile);
+      imageUrl = await getDownloadURL(storageRef);
+    }
+
+    // Update Firebase Auth profile
+    await updateProfile(user, { displayName: name, photoURL: imageUrl });
+
+    // Create user document in Firestore
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, {
+      uid: user.uid,
+      name,
+      email: user.email,
+      imageUrl,
+      bookmarks: []
+    });
+
+    return userCredential;
+  }, []);
+
   const logout = useCallback(() => signOut(auth), []);
 
   // 📝 Add a story
-  const addStory = useCallback(async (storyData: Pick<Resource, 'title' | 'category' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName'>) => {
+  const addStory = useCallback(async (storyData: Pick<Resource, 'title' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName' | 'category' | 'status'>) => {
     if (!currentUser) throw new Error("User not authenticated");
 
-    const newStory = {
+    const newStory: Omit<Resource, 'id'> = {
       ...storyData,
       authorId: currentUser.uid,
-      authorName: currentUser.name,
+      authorName: currentUser.name ?? undefined,
+      authorImageUrl: currentUser.imageUrl,
       imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`,
-      status: "pending_review",
       createdAt: serverTimestamp(),
     };
     await addDoc(collection(db, "stories"), newStory);
   }, [currentUser]);
 
-  // ✏️ Update a story locally (for UI sync)
-  const updateStory = useCallback((storyId: string, updates: Partial<Omit<Resource, 'id'>>) => {
-    setStories(prev => prev.map(s => s.id === storyId ? { ...s, ...updates } : s));
+  // ✏️ Update a story in Firestore
+  const updateStory = useCallback(async (storyId: string, updates: Partial<Omit<Resource, 'id'>>) => {
+    const storyRef = doc(db, "stories", storyId);
+    await updateDoc(storyRef, updates);
+    // The real-time listener will automatically update the local state.
   }, []);
 
   // 💬 Add comment
@@ -163,8 +209,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error("User must be logged in to comment.");
       return;
     }
-    const newComment: Comment = {
-      id: `comment-${Date.now()}`,
+    const newComment: Omit<Comment, 'id'> = {
       resourceId,
       authorId: currentUser.uid,
       authorName: currentUser.name ?? user.displayName ?? user.email?.split('@')[0] ?? 'Anonymous',
@@ -230,30 +275,87 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return newRatings;
       });
     }, [currentUser]);
+
+  const deleteComment = useCallback(async (commentId: string) => {
+    if (!currentUser) {
+      console.error("User must be logged in to delete a comment.");
+      return;
+    }
+    const commentRef = doc(db, "comments", commentId);
+    await deleteDoc(commentRef);
+  }, [currentUser]);
+  
+  const deleteStory = useCallback(async (storyId: string) => {
+    if (!currentUser) {
+      console.error("User must be logged in to delete a story.");
+      return;
+    }
+    const storyRef = doc(db, "stories", storyId);
+    await deleteDoc(storyRef);
+  }, [currentUser]);
+
+  const deleteAccount = useCallback(async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("No user is currently signed in.");
+    }
+
+    try {
+      // 1. Delete profile image from Storage
+      const storage = getStorage();
+      const imageRef = ref(storage, `profile_images/${user.uid}`);
+      try {
+        await deleteObject(imageRef);
+      } catch (error: any) {
+        if (error.code !== 'storage/object-not-found') {
+          console.error("Error deleting profile image:", error);
+        }
+      }
+
+      // 2. Delete user document from Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      await deleteDoc(userDocRef);
+
+      // 3. Delete the user from Firebase Authentication
+      await deleteUser(user);
+
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      throw error;
+    }
+  }, []);
+
   // 🧑‍🎨 Update user profile
   const updateUserProfile = useCallback(async (name: string, imageFile: File | null) => {
     const user = auth.currentUser;
     if (!user || !currentUser) throw new Error("User not authenticated");
 
     let newImageUrl = currentUser.imageUrl;
+
     if (imageFile) {
-      newImageUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-      });
+      const storage = getStorage();
+      const storageRef = ref(storage, `profile_images/${user.uid}`);
+      
+      // Upload the file and get the download URL
+      await uploadBytes(storageRef, imageFile);
+      newImageUrl = await getDownloadURL(storageRef);
     }
 
-    await updateProfile(user, { displayName: name });
+    // First, update the Firestore document, which is our source of truth
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, { name, imageUrl: newImageUrl }, { merge: true });
+
+    // Then, update the Firebase Auth profile for consistency
+    await updateProfile(user, { displayName: name, photoURL: newImageUrl });
+    
     const updatedUser = { ...currentUser, name, imageUrl: newImageUrl };
     setCurrentUser(updatedUser);
-    localStorage.setItem(`profile_${user.uid}`, JSON.stringify({ name, imageUrl: newImageUrl }));
   }, [currentUser]);
 
   const value = useMemo(() => ({
     currentUser,
     loading,
+    users,
     stories,
     comments,
     likes,
@@ -271,7 +373,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateUserProfile,
     toggleBookmark,
     rateEmpathy,
-  }), [currentUser, loading, stories, comments, likes, reports, bookmarks, empathyRatings]);
+    deleteComment,
+    deleteStory,
+    deleteAccount,
+  }), [currentUser, loading, users, stories, comments, likes, reports, bookmarks, empathyRatings, addStory, updateStory, addComment, toggleLike, reportContent, updateUserProfile, toggleBookmark, rateEmpathy, deleteComment, deleteStory, deleteAccount]);
 
   return (
     <AuthContext.Provider value={value}>
@@ -286,6 +391,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) throw new Error('useAuth must be used within an AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };

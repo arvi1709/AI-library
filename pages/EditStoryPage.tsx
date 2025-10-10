@@ -7,7 +7,7 @@ import type { Resource } from '../types';
 const EditStoryPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { currentUser, stories, updateStory, loading: authLoading } = useAuth();
+  const { currentUser, stories, updateStory, loading: authLoading, deleteStory } = useAuth();
   
   const story = useMemo(() => stories.find(s => s.id === id), [stories, id]);
 
@@ -56,8 +56,18 @@ const EditStoryPage: React.FC = () => {
         setIsLoading(false);
         if(publish) {
             navigate('/profile');
+        } else {
+            alert("Draft saved!");            
         }
     }, 500);
+  };
+
+  const handleDelete = () => {
+    if (!story) return;
+    if (window.confirm(`Are you sure you want to permanently delete "${story.title}"? This action cannot be undone.`)) {
+      deleteStory(story.id);
+      navigate('/profile');
+    }
   };
 
   if (authLoading) {
@@ -122,6 +132,16 @@ const EditStoryPage: React.FC = () => {
             </button>
             <button onClick={() => handleSave(true)} disabled={isLoading} className="flex-1 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-orange hover:bg-orange-600 focus:outline-none disabled:bg-slate-400">
                 {isLoading ? <LoadingSpinner/> : 'Approve & Publish'}
+            </button>
+        </div>
+        <div className="text-center">
+            <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isLoading}
+                className="text-sm text-red-600 dark:text-red-400 hover:underline disabled:opacity-50"
+            >
+                Delete Story Permanently
             </button>
         </div>
       </div>

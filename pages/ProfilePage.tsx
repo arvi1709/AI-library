@@ -6,7 +6,7 @@ import { RESOURCES } from '../constants';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const ProfilePage: React.FC = () => {
-  const { currentUser, stories, comments, likes, reports, updateUserProfile, bookmarks } = useAuth();
+  const { currentUser, stories, comments, likes, reports, updateUserProfile, bookmarks, deleteStory, deleteAccount } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(currentUser?.name || '');
@@ -81,6 +81,23 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you absolutely sure you want to delete your account? This will permanently erase all your data, including stories and comments. This action cannot be undone.")) {
+      try {
+        await deleteAccount();
+        // The onAuthStateChanged listener will handle navigation
+      } catch (error) {
+        setError("Failed to delete account. You may need to log in again to perform this action.");
+        console.error(error);
+      }
+    }
+  };
+
+  // const handleDeleteStory = (storyId: string, storyTitle: string) => {
+  //   if (window.confirm(`Are you sure you want to permanently delete "${storyTitle}"? This action cannot be undone.`)) {
+  //     deleteStory(storyId);
+  //   }
+  // };
 
   if (!currentUser) {
     return (
@@ -107,6 +124,12 @@ const ProfilePage: React.FC = () => {
         return null;
     }
   }
+
+  const handleDeleteStory = (storyId: string, storyTitle: string) => {
+    if (window.confirm(`Are you sure you want to permanently delete "${storyTitle}"? This action cannot be undone.`)) {
+      deleteStory(storyId);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -140,6 +163,18 @@ const ProfilePage: React.FC = () => {
               Cancel
             </button>
           </div>
+          
+          <div className="mt-8 pt-6 border-t border-red-200 dark:border-red-900/50">
+            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 mb-4">This action is permanent and cannot be undone.</p>
+            <button
+              onClick={handleDeleteAccount}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
+            >
+              Delete My Account
+            </button>
+          </div>
+
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -173,7 +208,11 @@ const ProfilePage: React.FC = () => {
             {userStories.map(story => (
               <div key={story.id} className="relative">
                 {getStatusBadge(story.status)}
-                <ResourceCard resource={story} likesCount={(likes[story.id] || []).length} />
+                <ResourceCard
+                  resource={story}
+                  likesCount={(likes[story.id] || []).length}
+                  onDelete={handleDeleteStory}
+                />
               </div>
             ))}
           </div>

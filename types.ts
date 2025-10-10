@@ -10,17 +10,19 @@ export interface User {
 export interface Resource {
   id: string;
   title: string;
-  category: string;
+  category: string | string[];
   shortDescription: string;
   content: string;
   summary?: string;
   imageUrl: string;
   authorId?: string;
   authorName?: string;
+  authorImageUrl?: string;
   fileName?: string;
   status?: 'published' | 'processing' | 'pending_review';
   tags?: string[];
   likes?: string[];
+  createdAt?: any;
 }
 
 export interface TeamMember {

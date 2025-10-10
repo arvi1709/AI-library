@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { processFileContent } from '../services/geminiService';
-import { auth } from '../services/firebase';
 
 const AddStoryPage: React.FC = () => {
   const [step, setStep] = useState<'upload' | 'details'>('upload');
@@ -47,6 +45,7 @@ const AddStoryPage: React.FC = () => {
           setContent(result.content);
           setSummary(result.summary);
           setTags(result.tags.join(', '));
+          setCategory(result.categories.join(', '));
           
           setStep('details');
         } catch (err) {
@@ -63,7 +62,7 @@ const AddStoryPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, status: 'published' | 'pending_review') => {
     e.preventDefault();
     if (!title || !category || !shortDescription || !file) {
       setError('Please fill in all required fields.');
@@ -76,12 +75,13 @@ const AddStoryPage: React.FC = () => {
     try {
       await addStory({ 
         title, 
-        category, 
+        category: category.split(',').map(c => c.trim()).filter(Boolean), 
         shortDescription, 
         content,
         summary,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         fileName: file.name,
+        status,
       });
       navigate('/profile');
     } catch (err) {
@@ -149,10 +149,10 @@ const AddStoryPage: React.FC = () => {
 
   return ( // Step 2: Details
     <div className="max-w-4xl mx-auto">
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 space-y-6">
+      <form onSubmit={(e) => e.preventDefault()} className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-brand-blue mb-2">Add Your Story: Step 2 of 2</h1>
-          <p className="text-slate-600 dark:text-slate-300">The AI has processed your file. Review the generated content, add your story details, and save it for final review.</p>
+          <p className="text-slate-600 dark:text-slate-300">The AI has processed your file. Review the generated content, add your story details, and then either save it as a draft or publish it directly.</p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
@@ -161,7 +161,7 @@ const AddStoryPage: React.FC = () => {
               <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
             </div>
              <div>
-              <label htmlFor="category" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
+              <label htmlFor="category" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Category (comma-separated)</label>
               <input type="text" id="category" value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g., Personal, Fiction, History" className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
             </div>
         </div>
@@ -195,9 +195,24 @@ const AddStoryPage: React.FC = () => {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button type="submit" disabled={isLoading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-orange hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-orange disabled:bg-slate-400">
-          {isLoading ? <LoadingSpinner /> : 'Save Story for Review'}
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t dark:border-slate-700">
+            <button 
+              type="button" 
+              onClick={(e) => handleSubmit(e, 'pending_review')} 
+              disabled={isLoading} 
+              className="flex-1 justify-center py-3 px-4 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none disabled:bg-slate-200 dark:disabled:bg-slate-500"
+            >
+              {isLoading ? <LoadingSpinner/> : 'Save as Draft'}
+            </button>
+            <button 
+              type="button" 
+              onClick={(e) => handleSubmit(e, 'published')} 
+              disabled={isLoading} 
+              className="flex-1 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-orange hover:bg-orange-600 focus:outline-none disabled:bg-slate-400"
+            >
+              {isLoading ? <LoadingSpinner/> : 'Publish Story'}
+            </button>
+        </div>
       </form>
     </div>
   );

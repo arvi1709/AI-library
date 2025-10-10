@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { MOST_VIEWED_AUTHORS } from '../constants';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { RESOURCES, TEAM_MEMBERS, MENTORS, MOST_VIEWED_AUTHORS } from '../constants';
+import ResourceCard from '../components/ResourceCard';
 import WelcomeModal from '../components/WelcomeModal';
 import { useAuth } from '../contexts/AuthContext';
 
 
 const HomePage: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, stories, likes, users } = useAuth();
+  const navigate = useNavigate();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,50 @@ const HomePage: React.FC = () => {
 
   const handleCloseModal = () => {
     setShowWelcomeModal(false);
+  };
+
+  const allResources = useMemo(() => {
+    const publishedStories = stories.filter(s => s.status === 'published');
+    return [...RESOURCES, ...publishedStories];
+  }, [stories]);
+
+  const mostViewedAuthors = useMemo(() => {
+    const authorStats: { [authorName: string]: { stories: number; likes: number; authorId?: string } } = {};
+
+    allResources.forEach(story => {
+      if (story.authorName) {
+        if (!authorStats[story.authorName]) {
+          authorStats[story.authorName] = { stories: 0, likes: 0, authorId: story.authorId };
+        }
+        authorStats[story.authorName].stories += 1;
+        authorStats[story.authorName].likes += (likes[story.id] || []).length;
+      }
+    });
+
+    const sortedAuthors = Object.entries(authorStats)
+      .map(([name, stats]) => {
+        const authorProfile = users.find(u => u.uid === stats.authorId);
+        return {
+          name,
+          role: 'Author',
+          bio: `${stats.stories} stories published`,
+          imageUrl: authorProfile?.imageUrl || `https://picsum.photos/seed/${name.replace(/\s+/g, '')}/200/200`,
+          score: stats.stories + stats.likes * 2, // Simple scoring: 1 point per story, 2 per like
+        };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4);
+
+    // If we don't have enough dynamic authors, fill with static ones
+    if (sortedAuthors.length < 4) {
+      return [...sortedAuthors, ...MOST_VIEWED_AUTHORS.slice(0, 4 - sortedAuthors.length)];
+    }
+
+    return sortedAuthors;
+  }, [allResources, likes, users]);
+
+  const handleAuthorClick = (authorName: string) => {
+    navigate(`/library?author=${encodeURIComponent(authorName)}`);
   };
 
   return (
@@ -73,25 +119,16 @@ const HomePage: React.FC = () => {
         
         <div className="mt-24 max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200 mb-12">Weekly Most Viewed Authors</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 md:gap-12">
-            {MOST_VIEWED_AUTHORS.map((author) => (
-              <Link 
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {mostViewedAuthors.map((author) => (
+              <div 
                 key={author.name} 
-                to={`/library?author=${encodeURIComponent(author.name)}`} 
-                className="flex flex-col items-center group" 
-                title={author.bio}
+                className="flex flex-col items-center cursor-pointer group"
+                onClick={() => handleAuthorClick(author.name)}
               >
-                <div className="relative">
-                  <img
-                    className="w-28 h-28 rounded-full object-cover shadow-lg border-4 border-white dark:border-slate-800 group-hover:border-brand-orange transition-all duration-300"
-                    src={author.imageUrl}
-                    alt={author.name}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-slate-700 dark:text-slate-300 group-hover:text-brand-orange transition-colors">{author.name}</h3>
-              </Link>
+                <img className="w-24 h-24 rounded-full object-cover mb-4 shadow-lg group-hover:scale-105 transition-transform" src={author.imageUrl} alt={author.name} loading="lazy" decoding="async" />
+                <h3 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-brand-orange">{author.name}</h3>
+              </div>
             ))}
           </div>
         </div>

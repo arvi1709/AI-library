@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Resource } from '../types';
@@ -10,9 +6,10 @@ import { useAuth } from '../contexts/AuthContext';
 interface ResourceCardProps {
   resource: Resource;
   likesCount?: number;
+  onDelete?: (storyId: string, storyTitle: string) => void;
 }
 
-const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0 }) => {
+const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0, onDelete }) => {
   const { currentUser, reportContent, reports, bookmarks, toggleBookmark } = useAuth();
   const isPendingReview = resource.status === 'pending_review';
 
@@ -56,7 +53,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0 })
 
 
   return (
-    <div className="relative bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 flex flex-col hover:-translate-y-1">
+    <div className="group relative bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 flex flex-col hover:-translate-y-1">
       {currentUser && (
         <button
           onClick={handleBookmarkClick}
@@ -93,7 +90,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0 })
       <div className="p-6 flex flex-col flex-grow">
         <div>
           <div className="flex justify-between items-center text-sm">
-            <span className="uppercase tracking-wide text-brand-blue font-semibold">{resource.category}</span>
+            <span className="uppercase tracking-wide text-brand-blue font-semibold">{(Array.isArray(resource.category) ? resource.category.join(', ') : resource.category)}</span>
              <div className="flex items-center gap-4">
                 {resource.authorName && <span className="text-slate-500 dark:text-slate-400">by {resource.authorName}</span>}
                 <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400" title={`${likesCount} likes`}>
@@ -105,7 +102,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0 })
             </div>
           </div>
           <h3 className="block mt-1 text-lg leading-tight font-medium text-black dark:text-white">{resource.title}</h3>
-          <p className="mt-2 text-slate-500 dark:text-slate-400 text-base flex-grow">{resource.shortDescription}</p>
+          <p className="mt-2 text-slate-500 dark:text-slate-400 text-base flex-grow max-h-20 group-hover:max-h-96 overflow-hidden transition-all duration-500 ease-in-out">{resource.shortDescription}</p>
           {resource.tags && resource.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {resource.tags.slice(0, 3).map(tag => (
@@ -114,7 +111,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0 })
             </div>
           )}
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex items-center gap-2">
             {isPendingReview ? (
                  <Link 
                     to={`/edit-story/${resource.id}`} 
@@ -129,6 +126,22 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0 })
                 >
                     Read More
                 </Link>
+            )}
+            {onDelete && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete(resource.id, resource.title);
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold p-2 rounded-full shadow-lg transition-transform hover:scale-110"
+                title="Delete story"
+                aria-label="Delete story"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
+                </svg>
+              </button>
             )}
         </div>
       </div>

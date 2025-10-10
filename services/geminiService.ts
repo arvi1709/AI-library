@@ -1,3 +1,5 @@
+
+
 /// <reference types="vite/client" />
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -37,12 +39,12 @@ export const summarizeText = async (text: string): Promise<string> => {
 
 export const processFileContent = async (
   file: File
-): Promise<{ content: string; tags: string[]; summary: string }> => {
+): Promise<{ content: string; tags: string[]; summary: string; categories: string[] }> => {
   try {
     const fileData = await fileToBase64(file);
     const filePart = { inlineData: { data: fileData, mimeType: file.type } };
     const textPart = {
-      text: "First, extract the full text content from this file. If it's audio, transcribe it. If it's a document, extract the text. Second, based on the extracted content, generate a concise summary of the content. Third, generate 5-7 relevant keywords or tags that describe the main themes. Return the result as a JSON object with three keys: 'content' for the extracted text, 'summary' for the generated summary, and 'tags' for the array of keywords.",
+      text: "First, extract the full text content from this file. If it's audio, transcribe it. If it's a document, extract the text. Second, based on the extracted content, generate a concise summary of the content. Third, generate 5-7 relevant keywords or tags that describe the main themes. Fourth, suggest 1-3 relevant categories for the story (e.g., 'Technology', 'Health', 'Science'). Return the result as a JSON object with four keys: 'content' for the extracted text, 'summary' for the generated summary, 'tags' for the array of keywords, and 'categories' for the array of categories.",
     };
 
     const response = await ai.models.generateContent({
@@ -57,6 +59,7 @@ export const processFileContent = async (
             content: { type: Type.STRING },
             summary: { type: Type.STRING },
             tags: { type: Type.ARRAY, items: { type: Type.STRING } },
+            categories: { type: Type.ARRAY, items: { type: Type.STRING } },
           },
         },
       },
@@ -70,6 +73,7 @@ export const processFileContent = async (
       content: "Sorry, I couldn't process the file. Please try again.",
       tags: [],
       summary: "Sorry, a summary could not be generated for this file.",
+      categories: [],
     };
   }
 };

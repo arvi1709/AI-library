@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -55,6 +53,9 @@ const AuthPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [name, setName] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
@@ -81,10 +82,13 @@ const AuthPage: React.FC = () => {
     if (password !== passwordConfirm) {
       return setError('Passwords do not match');
     }
+    if (!name.trim()) {
+      return setError('Please enter your name.');
+    }
     setError('');
     setLoading(true);
     try {
-      await signup(email, password);
+      await signup(email, password, name, imageFile);
       navigate('/profile');
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
@@ -102,6 +106,9 @@ const AuthPage: React.FC = () => {
     setPassword('');
     setPasswordConfirm('');
     setError('');
+    setName('');
+    setImageFile(null);
+    setImagePreview(null);
     setLoading(false);
   };
 
@@ -110,6 +117,18 @@ const AuthPage: React.FC = () => {
     resetForm();
   };
   
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="max-w-md mx-auto">
       <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
@@ -159,6 +178,26 @@ const AuthPage: React.FC = () => {
         ) : (
           <form onSubmit={handleSignup} className="space-y-6">
             {error && <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
+            
+            <div className="flex flex-col items-center space-y-2">
+              <label htmlFor="profile-image-upload" className="cursor-pointer">
+                <img 
+                  className="w-24 h-24 rounded-full object-cover border-2 border-slate-300 dark:border-slate-600" 
+                  src={imagePreview || `https://picsum.photos/seed/newuser/200/200`} 
+                  alt="Profile preview" 
+                />
+              </label>
+              <input id="profile-image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              <label htmlFor="profile-image-upload" className="text-sm font-medium text-brand-blue hover:underline cursor-pointer">
+                Upload Profile Picture
+              </label>
+            </div>
+
+            <div>
+              <label htmlFor="name-signup" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
+              <input type="text" id="name-signup" value={name} onChange={e => setName(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="name" />
+            </div>
+
             <div>
               <label htmlFor="email-signup" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
               <input type="email" id="email-signup" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="email" />
