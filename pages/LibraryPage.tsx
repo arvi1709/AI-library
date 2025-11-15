@@ -79,10 +79,10 @@ const LibraryPage: React.FC = () => {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-3 py-1 text-sm font-medium rounded-full transition-colors duration-200 ${
                   selectedCategory === category
-                    ? 'text-white' style={{ backgroundColor: '#16476A' }}
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                    ? 'text-white'
                     : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                 }`}
+                style={selectedCategory === category ? { backgroundColor: '#16476A' } : {}}
               >
                 {category}
               </button>

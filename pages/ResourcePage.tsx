@@ -37,11 +37,16 @@ const ResourcePage: React.FC = () => {
     }
   }, [id, allResources, currentUser, authLoading]);
 
-  const handlePostComment = (e: React.FormEvent) => {
+  const handlePostComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !resource) return;
-    addComment(resource.id, newComment);
-    setNewComment('');
+    
+    try {
+      await addComment(resource.id, newComment);
+      setNewComment('');
+    } catch (error: any) {
+      alert(error.message || 'Failed to post comment. Please try again.');
+    }
   };
   
   const handleDeleteComment = (commentId: string) => {

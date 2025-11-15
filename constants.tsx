@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Resource, TeamMember } from './types';
 
@@ -51,38 +50,44 @@ export const RESOURCES: Resource[] = [
 
 export const TEAM_MEMBERS: TeamMember[] = [
   {
-    name: 'Dr. Evelyn Reed',
-    role: 'Project Lead & AI Specialist',
-    imageUrl: 'https://picsum.photos/seed/person1/200/200',
-    bio: 'Evelyn holds a Ph.D. in Computer Science and has over 15 years of experience in machine learning and natural language processing. She is the visionary behind Living Library 2.0.'
+    name: 'Arvind Kumar',
+    role: 'Backend Engineer',
+    imageUrl: '/arvind.webp',
+    bio: 'Arvind is a B.TECH CSE AIML Student at SGT University. He is passionate about leveraging AI to create impactful educational tools and has been instrumental in conceptualizing and leading the Living Library 2.0 project.'
   },
   {
-    name: 'David Chen',
-    role: 'Lead Frontend Engineer',
-    imageUrl: 'https://picsum.photos/seed/person2/200/200',
-    bio: 'David is a passionate developer with a keen eye for UI/UX design. He brought the Living Library 2.0 interface to life with his expertise in React and modern web technologies.'
+    name: 'Deepak Yadav',
+    role: 'Frontend Engineer',
+    imageUrl: '/deepak.jpg',
+    bio: 'Deepak Yadav is a B.TECH CSE AIML Student at SGT University. He passionate developer with a keen eye for UI/UX design. He brought the Living Library 2.0 interface to life with his expertise in React and modern web technologies.'
   },
   {
-    name: 'Maria Garcia',
-    role: 'Content Strategist & Librarian',
-    imageUrl: 'https://picsum.photos/seed/person3/200/200',
-    bio: 'With a background in library sciences, Maria curates the resources and ensures the quality and relevance of the content available in the Living Library.'
+    name: 'Simarjot Kaur',
+    role: 'Creative Content Head & Volunteer',
+    imageUrl: '/sjk.jpg',
+    bio: 'Simarjot Kaur is the Creative Content Head and a dedicated volunteer at the Living Library. She curates and crafts compelling narratives that resonate with our diverse audience, ensuring that every story is told with authenticity and empathy.'
   },
 ];
 
 export const MENTORS: TeamMember[] = [
   {
-    name: 'Professor Alistair Finch',
-    role: 'Academic Advisor',
-    imageUrl: 'https://picsum.photos/seed/mentor1/200/200',
-    bio: 'A renowned professor in digital humanities, Alistair provides guidance on the ethical implications and academic applications of our AI-powered platform.'
+    name: 'Dr. Nazima Parveen',
+    role: 'PI (Living Library 2.O Project)',
+    imageUrl: '/parveen.jpg',
+    bio: 'Dr. Parveen is an Associate Professor and HOD, Department of Social Sciences and Liberal Studies, School of Humanities, Social Sciences and Liberal Arts (SHSL). She brings a wealth of knowledge in social justice and community engagement, guiding the Living Library project with her expertise and passion for inclusive storytelling.'
   },
   {
-    name: 'Brenda Miles',
-    role: 'Industry Mentor',
-    imageUrl: 'https://picsum.photos/seed/mentor2/200/200',
-    bio: 'As a VP of Engineering at a top tech company, Brenda offers invaluable insights into scaling technology and building sustainable, high-impact products.'
+    name: 'Dr. Nandini Basistha',
+    role: 'Academic Mentor',
+    imageUrl: '/nandini.jpg',
+    bio: 'Dr. Nandini Basistha serves as the Academic Mentor for the Living Library initiative. An Associate Professor in the Department of Liberal Studies & Social Sciences at the School of Humanities, Social Sciences & Liberal Arts, SGT University, Gurugram, she guides students with her expertise and passion for interdisciplinary learning, fostering reflection, dialogue, and intellectual growth.'
   },
+  {
+    name: 'Dr. Mouparna Roy',
+    role: 'Ideation Mentor',
+    imageUrl: '/roy.jpeg',
+    bio: 'Dr. Mouparna Roy is the visionary mind behind the Living Library project. A dedicated academic and innovator, she believes in the power of storytelling as a bridge between knowledge and empathy. Through her guidance and creative vision, the project was conceptualized to promote dialogue, inclusivity, and shared learning within the community.'
+  }
 ];
 
 export const MOST_VIEWED_AUTHORS: TeamMember[] = [
@@ -111,3 +116,4 @@ export const MOST_VIEWED_AUTHORS: TeamMember[] = [
     bio: 'Marcus is a celebrated poet and short story writer, focusing on themes of nature and identity.'
   }
 ];
+

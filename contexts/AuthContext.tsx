@@ -14,6 +14,7 @@ import {
 } from 'firebase/auth';
 import type { User, Resource, Comment, Report, EmpathyRating } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { containsProfanity, getProfanityErrorMessage } from '../services/profanityFilter';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -207,8 +208,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const user = auth.currentUser;
     if (!user || !currentUser) {
       console.error("User must be logged in to comment.");
-      return;
+      throw new Error("User must be logged in to comment.");
     }
+
+    // Check for profanity
+    if (containsProfanity(text)) {
+      throw new Error(getProfanityErrorMessage());
+    }
+
     const newComment: Omit<Comment, 'id'> = {
       resourceId,
       authorId: currentUser.uid,

@@ -40,6 +40,7 @@ export enum MessageAuthor {
 export interface ChatMessage {
   author: MessageAuthor;
   text: string;
+  relatedStories?: Resource[];
 }
 
 export interface Comment {

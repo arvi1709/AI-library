@@ -32,7 +32,7 @@ const AboutUsPage: React.FC = () => {
 
       <div className="mt-16">
         <h2 className="text-3xl font-bold text-center text-slate-800 dark:text-slate-200 mb-8">Our Mentors</h2>
-        <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8">
           {MENTORS.map(mentor => (
             <MemberCard key={mentor.name} member={mentor} />
           ))}
