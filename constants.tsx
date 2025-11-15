@@ -51,19 +51,19 @@ export const RESOURCES: Resource[] = [
 export const TEAM_MEMBERS: TeamMember[] = [
   {
     name: 'Arvind Kumar',
-    role: 'Backend Engineer',
+    role: 'Project Developer',
     imageUrl: '/arvind.webp',
     bio: 'Arvind is a B.TECH CSE AIML Student at SGT University. He is passionate about leveraging AI to create impactful educational tools and has been instrumental in conceptualizing and leading the Living Library 2.0 project.'
   },
   {
     name: 'Deepak Yadav',
-    role: 'Frontend Engineer',
+    role: 'Project Developer',
     imageUrl: '/deepak.jpg',
     bio: 'Deepak Yadav is a B.TECH CSE AIML Student at SGT University. He passionate developer with a keen eye for UI/UX design. He brought the Living Library 2.0 interface to life with his expertise in React and modern web technologies.'
   },
   {
     name: 'Simarjot Kaur',
-    role: 'Creative Content Head & Volunteer',
+    role: 'Creative Content Head',
     imageUrl: '/sjk.jpg',
     bio: 'Simarjot Kaur is the Creative Content Head and a dedicated volunteer at the Living Library. She curates and crafts compelling narratives that resonate with our diverse audience, ensuring that every story is told with authenticity and empathy.'
   },
