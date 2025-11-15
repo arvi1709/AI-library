@@ -29,16 +29,16 @@ const LoginPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg border border-slate-200 space-y-6">
-        <h2 className="text-2xl font-bold text-center text-brand-blue">Login</h2>
+        <h2 className="text-2xl font-bold text-center text-brand-navy">Login</h2>
         {error && <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email</label>
-          <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 text-slate-900" />
+              <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 text-slate-900" />
         </div>
         <div>
           <label htmlFor="password"className="block text-sm font-medium text-slate-700">Password</label>
           <div className="relative mt-1">
-            <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-2 pr-10 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 text-slate-900" />
+                <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={e => setPassword(e.target.value)} required className="block w-full px-3 py-2 pr-10 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 text-slate-900" />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -58,12 +58,12 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
         </div>
-        <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-blue hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue disabled:bg-slate-400">
-          {loading ? <LoadingSpinner /> : 'Log In'}
-        </button>
+            <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-navy hover:bg-brand-maroon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-navy disabled:bg-slate-400">
+              {loading ? <LoadingSpinner /> : 'Log In'}
+            </button>
         <div className="text-center text-sm">
           <p className="text-slate-600">
-            Need an account? <Link to="/signup" className="font-medium text-brand-orange hover:text-orange-600">Sign Up</Link>
+            Need an account? <Link to="/signup" className="font-medium" style={{ color: '#bf092f' }}>Sign Up</Link>
           </p>
         </div>
       </form>

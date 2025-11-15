@@ -95,11 +95,14 @@ const AddStoryPage: React.FC = () => {
   if (!currentUser) {
     return (
         <div className="text-center p-8 bg-white dark:bg-slate-800 rounded-lg shadow-md max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-brand-blue">Login Required</h2>
+          <h2 className="text-2xl font-bold text-brand-navy">Login Required</h2>
             <p className="text-slate-600 dark:text-slate-300 mt-2 mb-4">You need to be logged in to add your story.</p>
             <Link 
               to="/auth"
-              className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
+              className="text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
+              style={{ backgroundColor: '#bf092f' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}
             >
               Go to Login
             </Link>
@@ -112,7 +115,7 @@ const AddStoryPage: React.FC = () => {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 space-y-6">
            <div>
-            <h1 className="text-3xl font-bold text-brand-blue mb-2">Add Your Story: Step 1 of 2</h1>
+            <h1 className="text-3xl font-bold text-brand-navy mb-2">Add Your Story: Step 1 of 2</h1>
             <p className="text-slate-600 dark:text-slate-300">Start by uploading your document or audio file. Our AI will automatically extract the content, create a summary, and suggest tags.</p>
           </div>
           <div>
@@ -123,7 +126,7 @@ const AddStoryPage: React.FC = () => {
                   <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <div className="flex text-sm text-slate-600 dark:text-slate-400">
-                  <label htmlFor="file-upload" className="relative cursor-pointer bg-white dark:bg-slate-700 rounded-md font-medium text-brand-blue hover:text-brand-orange focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-blue">
+                  <label htmlFor="file-upload" className="relative cursor-pointer bg-white dark:bg-slate-700 rounded-md font-medium text-brand-navy focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-navy" onMouseEnter={(e) => e.currentTarget.style.color = '#bf092f'} onMouseLeave={(e) => e.currentTarget.style.color = '#16476A'}>
                     <span>Upload a file</span>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".pdf,.doc,.docx,text/plain,audio/*" onChange={handleFileChange} disabled={isLoading} />
                   </label>
@@ -151,24 +154,24 @@ const AddStoryPage: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       <form onSubmit={(e) => e.preventDefault()} className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-brand-blue mb-2">Add Your Story: Step 2 of 2</h1>
+          <h1 className="text-3xl font-bold text-brand-navy mb-2">Add Your Story: Step 2 of 2</h1>
           <p className="text-slate-600 dark:text-slate-300">The AI has processed your file. Review the generated content, add your story details, and then either save it as a draft or publish it directly.</p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Story Title</label>
-              <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
+              <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
             </div>
              <div>
               <label htmlFor="category" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Category (comma-separated)</label>
-              <input type="text" id="category" value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g., Personal, Fiction, History" className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
+              <input type="text" id="category" value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g., Personal, Fiction, History" className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
             </div>
         </div>
 
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Short Description</label>
-          <textarea id="description" value={shortDescription} onChange={e => setShortDescription(e.target.value)} rows={3} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
+          <textarea id="description" value={shortDescription} onChange={e => setShortDescription(e.target.value)} rows={3} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
         </div>
         
         <hr className="dark:border-slate-700"/>
@@ -180,17 +183,17 @@ const AddStoryPage: React.FC = () => {
         
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Extracted Story Content / Transcript</label>
-          <textarea id="content" value={content} onChange={e => setContent(e.target.value)} rows={10} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white" />
+          <textarea id="content" value={content} onChange={e => setContent(e.target.value)} rows={10} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white" />
         </div>
         
         <div>
           <label htmlFor="summary" className="block text-sm font-medium text-slate-700 dark:text-slate-300">AI-Generated Summary</label>
-          <textarea id="summary" value={summary} onChange={e => setSummary(e.target.value)} rows={4} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white" />
+          <textarea id="summary" value={summary} onChange={e => setSummary(e.target.value)} rows={4} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white" />
         </div>
 
         <div>
           <label htmlFor="tags" className="block text-sm font-medium text-slate-700 dark:text-slate-300">AI-Suggested Tags (comma-separated)</label>
-          <input type="text" id="tags" value={tags} onChange={e => setTags(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white" />
+          <input type="text" id="tags" value={tags} onChange={e => setTags(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white" />
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -208,7 +211,10 @@ const AddStoryPage: React.FC = () => {
               type="button" 
               onClick={(e) => handleSubmit(e, 'published')} 
               disabled={isLoading} 
-              className="flex-1 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-orange hover:bg-orange-600 focus:outline-none disabled:bg-slate-400"
+              className="flex-1 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none disabled:bg-slate-400"
+              style={{ backgroundColor: '#bf092f' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}
             >
               {isLoading ? <LoadingSpinner/> : 'Publish Story'}
             </button>

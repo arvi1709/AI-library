@@ -57,7 +57,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0, o
       {currentUser && (
         <button
           onClick={handleBookmarkClick}
-          className="absolute top-4 left-4 p-2 rounded-full bg-white/50 dark:bg-slate-900/50 hover:bg-brand-blue/20 text-slate-500 dark:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
+          className="absolute top-4 left-4 p-2 rounded-full bg-white/50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10" style={{ '--hover-bg': 'rgba(22, 71, 106, 0.2)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(22, 71, 106, 0.2)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.5)'} 
           title={isBookmarked ? "Remove from Bookmarks" : "Add to Bookmarks"}
           aria-label={isBookmarked ? "Remove from Bookmarks" : "Add to Bookmarks"}
         >
@@ -106,7 +106,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0, o
           {resource.tags && resource.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {resource.tags.slice(0, 3).map(tag => (
-                <span key={tag} className="bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue text-xs font-semibold px-2 py-1 rounded-full">{tag}</span>
+                <span key={tag} className="text-xs font-semibold px-2 py-1 rounded-full" style={{ backgroundColor: 'rgba(22, 71, 106, 0.1)', color: '#16476A' }}>{tag}</span>
               ))}
             </div>
           )}
@@ -122,7 +122,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0, o
             ) : (
                 <Link 
                     to={`/resource/${resource.id}`} 
-                    className="inline-block bg-brand-orange hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
+                    className="inline-block text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
+                    style={{ backgroundColor: '#bf092f' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}
                 >
                     Read More
                 </Link>

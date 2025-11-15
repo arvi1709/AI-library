@@ -102,11 +102,14 @@ const ProfilePage: React.FC = () => {
   if (!currentUser) {
     return (
       <div className="text-center p-8 bg-white dark:bg-slate-800 rounded-lg shadow-md max-w-md mx-auto">
-        <h1 className="text-2xl font-bold text-brand-blue">Login Required</h1>
+        <h1 className="text-2xl font-bold text-brand-navy">Login Required</h1>
         <p className="text-slate-600 dark:text-slate-300 mt-2 mb-4">You need to be logged in to view your profile.</p>
         <Link 
           to="/auth"
-          className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
+          className="text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300"
+          style={{ backgroundColor: '#bf092f' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}
         >
           Go to Login
         </Link>
@@ -150,13 +153,13 @@ const ProfilePage: React.FC = () => {
             </div>
             <div className="flex-grow w-full">
               <label htmlFor="name-input" className="text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
-              <input id="name-input" type="text" value={name} onChange={(e) => setName(e.target.value)} className="text-3xl font-bold text-brand-blue bg-transparent border-b-2 border-slate-200 dark:border-slate-600 focus:border-brand-blue focus:outline-none w-full pb-1" />
+              <input id="name-input" type="text" value={name} onChange={(e) => setName(e.target.value)} className="text-3xl font-bold text-brand-navy bg-transparent border-b-2 border-slate-200 dark:border-slate-600 focus:border-brand-navy focus:outline-none w-full pb-1" />
               <p className="text-slate-600 dark:text-slate-400 mt-1">{currentUser.email}</p>
             </div>
           </div>
           {error && <p className="text-sm text-red-600 mt-4 text-center sm:text-left">{error}</p>}
           <div className="mt-6 flex flex-col sm:flex-row gap-4">
-            <button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto bg-brand-orange hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-slate-400 flex items-center justify-center gap-2">
+            <button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 disabled:bg-slate-400 flex items-center justify-center gap-2" style={{ backgroundColor: '#bf092f' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}>
               {isSaving ? <LoadingSpinner /> : 'Save Changes'}
             </button>
             <button onClick={() => setIsEditing(false)} disabled={isSaving} className="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-bold py-2 px-4 rounded-lg transition-colors duration-300">
@@ -181,7 +184,7 @@ const ProfilePage: React.FC = () => {
             <div className="flex items-center gap-6">
                 <img className="w-24 h-24 rounded-full object-cover" src={currentUser.imageUrl} alt={currentUser.name || 'User'} loading="lazy" decoding="async" />
                 <div>
-                    <h1 className="text-3xl font-bold text-brand-blue">{currentUser.name}</h1>
+                    <h1 className="text-3xl font-bold text-brand-navy">{currentUser.name}</h1>
                     <p className="text-slate-600 dark:text-slate-400">{currentUser.email}</p>
                 </div>
             </div>
@@ -198,7 +201,7 @@ const ProfilePage: React.FC = () => {
       <div className="mb-12">
         <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">My Stories</h2>
-            <Link to="/add-story" className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+            <Link to="/add-story" className="text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300" style={{ backgroundColor: '#bf092f' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}>
                 Add New Story
             </Link>
         </div>
@@ -252,7 +255,7 @@ const ProfilePage: React.FC = () => {
               {userReports.map(report => (
                 <li key={report.resourceId} className="border-b last:border-b-0 dark:border-slate-700 pb-4 last:pb-0 flex justify-between items-center">
                   <div>
-                    <p className="text-slate-700 dark:text-slate-300">You reported <Link to={`/resource/${report.resourceId}`} className="font-semibold text-brand-blue hover:underline">{report.resourceTitle}</Link></p>
+                    <p className="text-slate-700 dark:text-slate-300">You reported <Link to={`/resource/${report.resourceId}`} className="font-semibold text-brand-navy hover:underline">{report.resourceTitle}</Link></p>
                     <p className="text-slate-500 dark:text-slate-400 text-sm">on {new Date(report.timestamp).toLocaleDateString()}</p>
                   </div>
                   <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/50 px-2 py-1 rounded-full">Pending Review</span>
@@ -274,7 +277,7 @@ const ProfilePage: React.FC = () => {
                       const commentedResource = allResources.find(r => r.id === comment.resourceId);
                       return (
                         <li key={comment.id} className="border-b last:border-b-0 dark:border-slate-700 pb-4 last:pb-0">
-                            <p className="text-slate-500 dark:text-slate-400 text-sm">You commented on <Link to={`/resource/${comment.resourceId}`} className="font-semibold text-brand-blue hover:underline">{commentedResource?.title || 'a resource'}</Link> on {new Date(comment.timestamp).toLocaleDateString()}</p>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm">You commented on <Link to={`/resource/${comment.resourceId}`} className="font-semibold text-brand-navy hover:underline">{commentedResource?.title || 'a resource'}</Link> on {new Date(comment.timestamp).toLocaleDateString()}</p>
                             <blockquote className="mt-2 pl-4 border-l-4 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 italic">
                                 "{comment.text}"
                             </blockquote>

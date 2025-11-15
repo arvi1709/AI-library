@@ -65,14 +65,14 @@ const AIAssistantPage: React.FC = () => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col h-[75vh]">
       <div className="p-4 border-b dark:border-slate-700">
-        <h1 className="text-xl font-bold text-brand-blue">Leo, Your Library Guide</h1>
+        <h1 className="text-xl font-bold text-brand-navy">Leo, Your Library Guide</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">Ask me about our stories or anything else you're curious about.</p>
       </div>
       <div className="flex-grow p-4 overflow-y-auto">
         <div className="space-y-4">
           {messages.map((msg, index) => (
             <div key={index} className={`flex ${msg.author === MessageAuthor.USER ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-              <div className={`max-w-lg px-4 py-2 rounded-xl ${msg.author === MessageAuthor.USER ? 'bg-brand-blue text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'}`}>
+              <div className={`max-w-lg px-4 py-2 rounded-xl ${msg.author === MessageAuthor.USER ? 'bg-brand-navy text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200'}`}>
                 <p className="whitespace-pre-wrap">{msg.text}</p>
               </div>
             </div>
@@ -94,13 +94,16 @@ const AIAssistantPage: React.FC = () => {
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             placeholder="Ask anything..."
-            className="flex-grow w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-brand-blue focus:border-brand-blue disabled:bg-slate-200 dark:disabled:bg-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
+            className="flex-grow w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-brand-navy focus:border-brand-navy disabled:bg-slate-200 dark:disabled:bg-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !userInput.trim()}
-            className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg disabled:bg-slate-400 disabled:cursor-not-allowed"
+            className="text-white font-bold py-2 px-4 rounded-lg disabled:bg-slate-400 disabled:cursor-not-allowed"
+            style={{ backgroundColor: '#bf092f' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />

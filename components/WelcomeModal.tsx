@@ -19,8 +19,8 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-brand-blue/10 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-blue" viewBox="0 0 24 24" fill="currentColor">
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4" style={{ backgroundColor: 'rgba(22, 71, 106, 0.1)' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-navy" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20 22H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1ZM5 20h14V4H5v16Z"/><path d="M8 6h8v2H8V6Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z"/>
             </svg>
         </div>
@@ -32,7 +32,10 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
           <Link
             to="/auth"
             onClick={onClose}
-            className="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105"
+            className="w-full text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105"
+            style={{ backgroundColor: '#bf092f', display: 'block', textAlign: 'center' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}
           >
             Get Started
           </Link>

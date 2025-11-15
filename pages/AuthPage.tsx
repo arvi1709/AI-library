@@ -23,7 +23,7 @@ const PasswordInput: React.FC<{
         value={value} 
         onChange={onChange} 
         required 
-        className="block w-full px-3 py-2 pr-10 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white"
+        className="block w-full px-3 py-2 pr-10 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white"
         autoComplete={autoComplete}
       />
       <button
@@ -137,7 +137,7 @@ const AuthPage: React.FC = () => {
             onClick={() => switchMode('login')}
             className={`flex-1 py-2 font-semibold text-center transition-colors duration-200 ${
               mode === 'login' 
-                ? 'text-brand-blue border-b-2 border-brand-blue'
+                ? 'text-brand-navy border-b-2 border-brand-navy'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
@@ -147,7 +147,7 @@ const AuthPage: React.FC = () => {
             onClick={() => switchMode('signup')}
             className={`flex-1 py-2 font-semibold text-center transition-colors duration-200 ${
               mode === 'signup' 
-                ? 'text-brand-blue border-b-2 border-brand-blue'
+                ? 'text-brand-navy border-b-2 border-brand-navy'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
@@ -160,7 +160,7 @@ const AuthPage: React.FC = () => {
             {error && <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
             <div>
               <label htmlFor="email-login" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
-              <input type="email" id="email-login" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="email" />
+              <input type="email" id="email-login" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="email" />
             </div>
             <PasswordInput
               id="password-login"
@@ -171,7 +171,7 @@ const AuthPage: React.FC = () => {
               label="Password"
               autoComplete="current-password"
             />
-            <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-blue hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue disabled:bg-slate-400">
+            <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-navy hover:bg-brand-maroon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-navy disabled:bg-slate-400">
               {loading ? <LoadingSpinner /> : 'Log In'}
             </button>
           </form>
@@ -188,19 +188,19 @@ const AuthPage: React.FC = () => {
                 />
               </label>
               <input id="profile-image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-              <label htmlFor="profile-image-upload" className="text-sm font-medium text-brand-blue hover:underline cursor-pointer">
+              <label htmlFor="profile-image-upload" className="text-sm font-medium text-brand-navy hover:underline cursor-pointer">
                 Upload Profile Picture
               </label>
             </div>
 
             <div>
               <label htmlFor="name-signup" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
-              <input type="text" id="name-signup" value={name} onChange={e => setName(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="name" />
+              <input type="text" id="name-signup" value={name} onChange={e => setName(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="name" />
             </div>
 
             <div>
               <label htmlFor="email-signup" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
-              <input type="email" id="email-signup" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-blue focus:border-brand-blue bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="email" />
+              <input type="email" id="email-signup" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 dark:bg-slate-700 text-slate-900 dark:text-white" autoComplete="email" />
             </div>
             <PasswordInput
               id="password-signup"
@@ -220,7 +220,7 @@ const AuthPage: React.FC = () => {
               label="Confirm Password"
               autoComplete="new-password"
             />
-            <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-blue hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue disabled:bg-slate-400">
+            <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-navy hover:bg-brand-maroon focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-navy disabled:bg-slate-400">
               {loading ? <LoadingSpinner /> : 'Sign Up'}
             </button>
           </form>

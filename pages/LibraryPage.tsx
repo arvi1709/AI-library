@@ -60,7 +60,7 @@ const LibraryPage: React.FC = () => {
   return (
     <div>
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 mb-8">
-        <h1 className="text-3xl font-bold text-brand-blue mb-2">Resource Library</h1>
+        <h1 className="text-3xl font-bold text-brand-navy mb-2">Resource Library</h1>
         <p className="text-slate-600 dark:text-slate-300 mb-4">Search, filter, and explore our collection of articles and community stories.</p>
         <div className="flex flex-col md:flex-row gap-4">
           <input
@@ -68,7 +68,7 @@ const LibraryPage: React.FC = () => {
             placeholder="Search by title, description, author, or tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-grow w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-brand-blue focus:border-brand-blue bg-slate-200 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
+            className="flex-grow w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-brand-navy focus:border-brand-navy bg-slate-200 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
           />
         </div>
          <div className="mt-4 flex flex-wrap gap-2">
@@ -79,7 +79,8 @@ const LibraryPage: React.FC = () => {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-3 py-1 text-sm font-medium rounded-full transition-colors duration-200 ${
                   selectedCategory === category
-                    ? 'bg-brand-blue text-white'
+                    ? 'text-white' style={{ backgroundColor: '#16476A' }}
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                     : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                 }`}
               >
@@ -94,7 +95,7 @@ const LibraryPage: React.FC = () => {
                 {allTags.length > 10 && (
                   <button
                     onClick={() => setShowAllTags(!showAllTags)}
-                    className="text-sm font-semibold text-brand-orange hover:underline"
+                    className="text-sm font-semibold hover:underline" style={{ color: '#bf092f' }}
                   >
                     {showAllTags ? 'Show Less' : 'Show More'}
                   </button>
@@ -107,9 +108,10 @@ const LibraryPage: React.FC = () => {
                     onClick={() => handleTagClick(tag)}
                     className={`px-3 py-1 text-sm font-medium rounded-full transition-colors duration-200 ${
                       selectedTags.includes(tag)
-                        ? 'bg-brand-orange text-white'
+                        ? 'text-white'
                         : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                     }`}
+                    style={selectedTags.includes(tag) ? { backgroundColor: '#bf092f' } : {}}
                   >
                     {tag}
                   </button>

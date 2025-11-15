@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -48,8 +47,8 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { currentUser, logout } = useAuth();
 
-  const linkClasses = "px-3 py-2 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 hover:text-brand-blue dark:hover:text-brand-blue";
-  const activeLinkClasses = "bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue";
+  const linkClasses = "px-3 py-2 rounded-md text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-brand-navy/10 dark:hover:bg-brand-navy/20 hover:text-brand-navy dark:hover:text-brand-navy";
+  const activeLinkClasses = "bg-brand-navy/10 dark:bg-brand-navy/20 text-brand-navy";
 
   const getLinkClass = ({ isActive }: { isActive: boolean }) => 
     isActive ? `${linkClasses} ${activeLinkClasses}` : linkClasses;
@@ -60,7 +59,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <NavLink to="/" className="flex-shrink-0 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-blue" viewBox="0 0 24 24" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" style={{ color: '#bf092f' }} viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20 22H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1ZM5 20h14V4H5v16Z"/><path d="M8 6h8v2H8V6Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z"/>
               </svg>
               <span className="font-bold text-xl text-slate-800 dark:text-slate-200">Living Library 2.0</span>
@@ -79,7 +78,7 @@ const Navbar: React.FC = () => {
                   <button onClick={logout} className={`${linkClasses} bg-red-500/10 text-red-600 hover:text-red-700 hover:bg-red-500/20`}>Logout</button>
                 </>
               ) : (
-                <Link to="/auth" className={`${linkClasses} bg-brand-blue/10 text-brand-blue`}>
+                  <Link to="/auth" className={`${linkClasses} bg-brand-navy/10 text-brand-navy`}>
                   Sign In
                 </Link>
                )}
@@ -91,7 +90,7 @@ const Navbar: React.FC = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="bg-gray-100 dark:bg-slate-800 inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-brand-blue"
+              className="bg-gray-100 dark:bg-slate-800 inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-brand-navy"
               aria-controls="mobile-menu"
               aria-expanded="false"
             >
@@ -124,7 +123,7 @@ const Navbar: React.FC = () => {
                     <button onClick={() => { logout(); setIsOpen(false); }} className={`${linkClasses} w-full text-left bg-red-500/10 text-red-600`}>Logout</button>
                  </>
                ) : (
-                  <Link to="/auth" className={`${linkClasses} bg-brand-blue/10 text-brand-blue`} onClick={() => setIsOpen(false)}>
+                  <Link to="/auth" className={`${linkClasses} bg-brand-navy/10 text-brand-navy`} onClick={() => setIsOpen(false)}>
                     Sign In
                   </Link>
                )}

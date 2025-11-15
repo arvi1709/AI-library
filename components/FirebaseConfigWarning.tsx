@@ -10,7 +10,7 @@ const FirebaseConfigWarning: React.FC = () => {
           This is expected on a new setup.
         </p>
         <div className="bg-slate-800 p-6 rounded-lg text-left">
-          <h2 className="text-2xl font-bold text-brand-orange mb-4">How to Fix This:</h2>
+          <h2 className="text-2xl font-bold mb-4" style={{ color: '#bf092f' }}>How to Fix This:</h2>
           <ol className="list-decimal list-inside space-y-3 text-slate-300">
             <li>
               Open the file <code className="bg-slate-700 text-yellow-300 px-2 py-1 rounded">services/firebase.ts</code> in your editor.
@@ -19,7 +19,7 @@ const FirebaseConfigWarning: React.FC = () => {
               Follow the instructions in the comments to replace the placeholder values (like <code className="bg-slate-700 text-yellow-300 px-2 py-1 rounded">"YOUR_API_KEY"</code>) with your actual Firebase project credentials.
             </li>
             <li>
-              You can find your credentials in your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-brand-blue hover:underline">Firebase Project Settings</a>.
+              You can find your credentials in your <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-brand-navy hover:underline">Firebase Project Settings</a>.
             </li>
             <li>
               Once you've added your credentials, save the file. The application should reload automatically.
