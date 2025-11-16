@@ -1,4 +1,3 @@
-
 # Living Library 2.0: An AI-Powered Interactive Knowledge Hub
 
 ![Living Library 2.0](https://picsum.photos/seed/project-banner/1200/630)
@@ -195,3 +194,122 @@ This is the central nervous system for user data and application state.
 -   It applies the correct CSS class (`dark`) to the `<html>` element to trigger Tailwind CSS's dark mode variants.
 -   It persists the user's theme preference to `localStorage` for a consistent experience across sessions.
 -   When set to 'system', it listens for changes in the operating system's theme preference and updates the UI automatically.
+
+### AIAssistantPage.tsx
+
+This page contains the AI-powered chat assistant.
+
+-   **`findRelevantStories(userMessage: string)`**: This function is responsible for searching the library for stories that are relevant to the user's message. It performs a case-insensitive search on the story's title, category, tags, and short description. It returns an array of matching stories.
+
+-   **`scrollToBottom()`**: This is a utility function that ensures the chat window automatically scrolls to the latest message, providing a smooth user experience.
+
+-   **`handleSendMessage(e: React.FormEvent)`**: This function is triggered when the user sends a message. It orchestrates the entire process of getting an AI response. It does the following:
+    1.  Adds the user's message to the chat history.
+    2.  Calls `findRelevantStories` to find relevant stories.
+    3.  If relevant stories are found, it enhances the user's message with context from the stories.
+    4.  Sends the (potentially enhanced) message to the Gemini API via the `getChatResponse` function.
+    5.  Adds the AI's response to the chat history.
+    6.  If relevant stories were found, it formats them as links and includes them in the AI's response.
+
+### AddStoryPage.tsx
+
+This page allows users to add new stories to the library.
+
+-   **`handleFileChange(e: React.ChangeEvent<HTMLInputElement>)`**: This function is triggered when the user selects a file to upload. It performs the following actions:
+    1.  Validates the file type, ensuring it's a PDF, DOC, TXT, or audio file.
+    2.  If the file is valid, it calls the `processFileContent` function from the `geminiService`.
+    3.  This service extracts the text content, generates a summary, and suggests tags and categories.
+    4.  The extracted data is then used to populate the story details form.
+
+-   **`handleSubmit(e: React.FormEvent, status: 'published' | 'pending_review')`**: This function is called when the user submits the story form. It does the following:
+    1.  Validates that all required fields are filled.
+    2.  Calls the `addStory` function from the `AuthContext`, passing in the story data.
+    3.  The story is saved with a status of either `published` or `pending_review`.
+    4.  Redirects the user to their profile page upon successful submission.
+
+### AuthPage.tsx
+
+This page handles both user login and signup.
+
+-   **`handleLogin(e: React.FormEvent)`**: This function is called when the user submits the login form. It calls the `login` function from the `AuthContext` with the user's email and password.
+
+-   **`handleSignup(e: React.FormEvent)`**: This function is called when the user submits the signup form. It calls the `signup` function from the `AuthContext` with the user's name, email, password, and profile image.
+
+-   **`resetForm()`**: This utility function clears all the form fields.
+
+-   **`switchMode(newMode: AuthMode)`**: This function switches the component between the 'login' and 'signup' modes.
+
+-   **`handleImageChange(e: React.ChangeEvent<HTMLInputElement>)`**: This function is triggered when the user selects a profile image. It sets the selected image file to the component's state and displays a preview.
+
+### EditStoryPage.tsx
+
+This page allows users to edit their own stories.
+
+-   **`handleSave(publish: boolean)`**: This function is called when the user saves their changes. It calls the `updateStory` function from the `AuthContext`, passing in the updated story data. The `publish` argument determines whether the story's status should be changed to `published`.
+
+-   **`handleDelete()`**: This function is called when the user deletes their story. It calls the `deleteStory` function from the `AuthContext`.
+
+### HomePage.tsx
+
+This is the main landing page of the application.
+
+-   **`handleCloseModal()`**: This function closes the welcome modal that is displayed to new users.
+
+-   **`allResources`**: This is a memoized value that combines the pre-populated resources with the user-submitted stories. This is done for performance, to avoid re-calculating the list on every render.
+
+-   **`mostViewedAuthors`**: This is a memoized value that calculates the most viewed authors. It does this by:
+    1.  Counting the number of likes for each author's stories.
+    2.  Sorting the authors by the total number of likes.
+    3.  Returning the top authors.
+
+-   **`handleAuthorClick(authorName: string)`**: This function is called when a user clicks on an author's name. It navigates the user to the library page, with the author's name pre-filled in the search bar.
+
+### LibraryPage.tsx
+
+This page displays the library of all available resources.
+
+-   **`allResources`**: This is a memoized value that combines the pre-populated resources with the user-submitted stories.
+
+-   **`categories`**: This is a memoized value that generates a unique list of all categories from the available resources.
+
+-   **`allTags`**: This is a memoized value that generates a unique list of all tags from the available resources.
+
+-   **`handleTagClick(tag: string)`**: This function is called when a user clicks on a tag. It adds or removes the tag from the list of selected tags, which is then used to filter the resources.
+
+-   **`filteredResources`**: This is a memoized value that filters the resources based on the user's search query, selected category, and selected tags. It performs a case-insensitive search on the resource's title, author, and description.
+
+### ProfilePage.tsx
+
+This page displays the user's profile and their activity.
+
+-   **`bookmarkedResources`**: This is a memoized value that filters the list of all resources to only include those that the user has bookmarked.
+
+-   **`userStories`**: This is a memoized value that filters the list of all stories to only include those that were authored by the current user.
+
+-   **`userComments`**: This is a memoized value that filters the list of all comments to only include those that were made by the current user.
+
+-   **`userReports`**: This is a memoized value that filters the list of all reports to only include those that were made by the current user.
+
+-   **`handleImageChange(e: React.ChangeEvent<HTMLInputElement>)`**: This function is triggered when the user selects a new profile image. It sets the selected image file to the component's state and displays a preview.
+
+-   **`handleSave()`**: This function is called when the user saves their profile changes. It calls the `updateUserProfile` function from the `AuthContext`, passing in the updated name and profile image.
+
+-   **`handleDeleteAccount()`**: This function is called when the user deletes their account. It calls the `deleteAccount` function from the `AuthContext`.
+
+-   **`getStatusBadge(status: 'processing' | 'pending_review' | 'published' | undefined)`**: This function returns a color-coded badge based on the story's status.
+
+-   **`handleDeleteStory(storyId: string, storyTitle: string)`**: This function is called when the user deletes one of their stories. It calls the `deleteStory` function from the `AuthContext`.
+
+### ResourcePage.tsx
+
+This page displays a single resource, with its content, comments, and other interactions.
+
+-   **`handlePostComment(e: React.FormEvent)`**: This function is called when the user posts a comment. It calls the `addComment` function from the `AuthContext`.
+
+-   **`handleDeleteComment(commentId: string)`**: This function is called when the user deletes a comment. It calls the `deleteComment` function from the `AuthContext`.
+
+-   **`isReported`**: This is a memoized value that checks if the current user has already reported the resource.
+
+-   **`handleReport()`**: This function is called when the user reports a resource. It calls the `reportContent` function from the `AuthContext`.
+
+-   **`handleDeleteStory()`**: This function is called when the author of a story deletes it. It calls the `deleteStory` function from the `AuthContext`.
