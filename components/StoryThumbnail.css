@@ -1,0 +1,79 @@
+/* Outer wrapper: you can override width in parent */
+.story-thumb {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Frame keeps a fixed 16:9 aspect ratio with rounded corners + shadow */
+.story-thumb__frame {
+  width: 100%;
+  /* modern: use aspect-ratio where supported */
+  aspect-ratio: 16 / 9;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(22,38,57,0.06);
+  /* fallback for older browsers: uses padding-top technique */
+  min-height: 0;
+}
+
+/* Padding-top fallback (only used if aspect-ratio is not supported) */
+@supports not (aspect-ratio: 16 / 9) {
+  .story-thumb__frame {
+    height: 0;
+    padding-top: calc(9 / 16 * 100%); /* 56.25% */
+  }
+}
+
+/* Background gradient used when the image doesn't fill (left/right letterbox) */
+/* Adjust colors to match your app's theme */
+.story-thumb__gradient {
+  background: linear-gradient(90deg, rgba(246, 248, 250, 1) 0%, rgba(235, 244, 250, 1) 50%, rgba(246, 248, 250, 1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* IMAGE: centered, contained, never cropped; letterbox appears on sides or top/bottom */
+.story-thumb__img {
+  position: absolute;
+  inset: 0;               /* fill the frame */
+  margin: auto;           /* center */
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;    /* <--- important to avoid cropping */
+  display: block;
+  /* smooth transitions when images load */
+  transition: transform 180ms ease, opacity 150ms ease;
+  transform-origin: center center;
+  background: transparent;
+}
+
+/* Optional: fade-in when the image loads (so placeholder -> image is nicer) */
+.story-thumb__img[loading="lazy"] {
+  opacity: 0;
+}
+.story-thumb__img:not([loading="lazy"]) {
+  opacity: 1;
+}
+.story-thumb__img.complete {
+  opacity: 1;
+}
+
+/* Placeholder style when image missing */
+.story-thumb__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.7);
+  /* subtle pattern / tint that matches gradient */
+}
+
+/* If you want a "cover" variant that does crop instead of letterboxing:
+   add class .story-thumb__frame--cover on the frame and use:
+.story-thumb__frame--cover .story-thumb__img { object-fit: cover; width:100%; height:100%; }
+*/

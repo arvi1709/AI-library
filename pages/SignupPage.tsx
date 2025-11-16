@@ -7,6 +7,8 @@ const SignupPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [name, setName] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
@@ -24,7 +26,7 @@ const SignupPage: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await signup(email, password);
+      await signup(email, password, name, imageFile);
       navigate('/profile');
     } catch (err: any) {
        if (err.code === 'auth/email-already-in-use') {
@@ -42,6 +44,10 @@ const SignupPage: React.FC = () => {
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg border border-slate-200 space-y-6">
         <h2 className="text-2xl font-bold text-center text-brand-navy">Sign Up</h2>
         {error && <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-slate-700">Name</label>
+          <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 text-slate-900" />
+        </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email</label>
           <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-gray-100 text-slate-900" />
@@ -91,6 +97,10 @@ const SignupPage: React.FC = () => {
               )}
             </button>
           </div>
+        </div>
+        <div>
+          <label htmlFor="imageFile" className="block text-sm font-medium text-slate-700">Profile Image</label>
+          <input type="file" id="imageFile" onChange={e => setImageFile(e.target.files ? e.target.files[0] : null)} className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-navy-light file:text-brand-navy hover:file:bg-brand-navy-light-hover" />
         </div>
         <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:bg-slate-400" style={{ backgroundColor: '#16476A' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#132440'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#16476A'}>
           {loading ? <LoadingSpinner /> : 'Sign Up'}

@@ -130,7 +130,7 @@ const EditStoryPage: React.FC = () => {
             <button onClick={() => handleSave(false)} disabled={isLoading} className="flex-1 justify-center py-3 px-4 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none disabled:bg-slate-200 dark:disabled:bg-slate-500">
                 {isLoading ? <LoadingSpinner/> : 'Save Draft'}
             </button>
-            <button onClick={() => handleSave(true)} disabled={isLoading} className="flex-1 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none disabled:bg-slate-400" style={{ backgroundColor: '#bf092f' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}>>
+            <button onClick={() => handleSave(true)} disabled={isLoading} className="flex-1 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none disabled:bg-slate-400" style={{ backgroundColor: '#bf092f' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8b0621'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bf092f'}>
                 {isLoading ? <LoadingSpinner/> : 'Approve & Publish'}
             </button>
         </div>

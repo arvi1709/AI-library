@@ -57,7 +57,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource, likesCount = 0, o
       {currentUser && (
         <button
           onClick={handleBookmarkClick}
-          className="absolute top-4 left-4 p-2 rounded-full bg-white/50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10" style={{ '--hover-bg': 'rgba(22, 71, 106, 0.2)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(22, 71, 106, 0.2)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.5)'} 
+          className="absolute top-4 left-4 p-2 rounded-full bg-white/50 dark:bg-slate-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-slate-500 dark:text-slate-400 hover:text-brand-blue disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
           title={isBookmarked ? "Remove from Bookmarks" : "Add to Bookmarks"}
           aria-label={isBookmarked ? "Remove from Bookmarks" : "Add to Bookmarks"}
         >
