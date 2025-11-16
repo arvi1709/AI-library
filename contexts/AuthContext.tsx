@@ -30,7 +30,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   signup: (email: string, pass: string, name: string, imageFile: File | null) => Promise<any>;
   addStory: (storyData: Pick<Resource, 'title' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName' | 'category' | 'status'>, imageFile: File | null) => Promise<void>;
-  updateStory: (storyId: string, updates: Partial<Omit<Resource, 'id'>>) => Promise<void>;
+  updateStory: (storyId: string, updates: Partial<Omit<Resource, 'id'>>, imageFile: File | null) => Promise<void>;
   addComment: (resourceId: string, text: string) => Promise<void>;
   toggleLike: (resourceId: string) => Promise<void>;
   reportContent: (resourceId: string, resourceTitle: string) => Promise<void>;
@@ -206,9 +206,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [currentUser]);
 
   // ✏️ Update a story in Firestore
-  const updateStory = useCallback(async (storyId: string, updates: Partial<Omit<Resource, 'id'>>) => {
+  const updateStory = useCallback(async (storyId: string, updates: Partial<Omit<Resource, 'id'>>, imageFile: File | null) => {
     const storyRef = doc(db, "stories", storyId);
-    await updateDoc(storyRef, updates);
+
+    const newUpdates = { ...updates };
+
+    if (imageFile) {
+      const storage = getStorage();
+      const storageRef = ref(storage, `story_images/${Date.now()}_${imageFile.name}`);
+      await uploadBytes(storageRef, imageFile);
+      newUpdates.imageUrl = await getDownloadURL(storageRef);
+    }
+
+    await updateDoc(storyRef, newUpdates);
     // The real-time listener will automatically update the local state.
   }, []);
 

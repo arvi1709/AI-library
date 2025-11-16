@@ -209,13 +209,16 @@ const ProfilePage: React.FC = () => {
         {userStories.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {userStories.map(story => (
-              <div key={story.id} className="relative">
+              <div key={story.id} className="relative group">
                 {getStatusBadge(story.status)}
                 <ResourceCard
                   resource={story}
                   likesCount={(likes[story.id] || []).length}
                   onDelete={handleDeleteStory}
                 />
+                <Link to={`/edit-story/${story.id}`} className="absolute top-4 right-4 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 px-3 py-1 rounded-full text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                  Edit
+                </Link>
               </div>
             ))}
           </div>

@@ -196,6 +196,11 @@ const ResourcePage: React.FC = () => {
                 </svg>
                 <span>{isReported ? 'Reported' : 'Report'}</span>
             </button>
+            {currentUser?.uid === resource.authorId && (
+                <Link to={`/edit-story/${resource.id}`} className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-brand-navy">
+                  Edit Story
+                </Link>
+              )}
             {currentUser && resource.authorId === currentUser.uid && (
               <button
                 onClick={handleDeleteStory}
