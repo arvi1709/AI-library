@@ -11,6 +11,7 @@ const AddStoryPage: React.FC = () => {
   const [category, setCategory] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
 
   // AI processed data
   const [content, setContent] = useState('');
@@ -42,10 +43,10 @@ const AddStoryPage: React.FC = () => {
           
           const result = await processFileContent(selectedFile);
           
-          setContent(result.content);
-          setSummary(result.summary);
-          setTags(result.tags.join(', '));
-          setCategory(result.categories.join(', '));
+          setContent(result.content || '');
+          setSummary(result.summary || '');
+          setTags((result.tags || []).join(', '));
+          setCategory((result.categories || []).join(', '));
           
           setStep('details');
         } catch (err) {
@@ -82,7 +83,7 @@ const AddStoryPage: React.FC = () => {
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         fileName: file.name,
         status,
-      });
+      }, bannerImageFile);
       navigate('/profile');
     } catch (err) {
       console.error("Error adding story:", err);
@@ -174,6 +175,11 @@ const AddStoryPage: React.FC = () => {
           <textarea id="description" value={shortDescription} onChange={e => setShortDescription(e.target.value)} rows={3} className="mt-1 block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-brand-navy focus:border-brand-navy bg-white dark:bg-slate-700 text-slate-900 dark:text-white" required />
         </div>
         
+        <div>
+          <label htmlFor="banner-image" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Banner Image</label>
+          <input type="file" id="banner-image" onChange={e => setBannerImageFile(e.target.files ? e.target.files[0] : null)} className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-navy/10 file:text-brand-navy hover:file:bg-brand-navy/20"/>
+        </div>
+
         <hr className="dark:border-slate-700"/>
 
         <div>

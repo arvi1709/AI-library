@@ -29,7 +29,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<any>;
   logout: () => Promise<void>;
   signup: (email: string, pass: string, name: string, imageFile: File | null) => Promise<any>;
-  addStory: (storyData: Pick<Resource, 'title' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName' | 'category' | 'status'>) => Promise<void>;
+  addStory: (storyData: Pick<Resource, 'title' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName' | 'category' | 'status'>, imageFile: File | null) => Promise<void>;
   updateStory: (storyId: string, updates: Partial<Omit<Resource, 'id'>>) => Promise<void>;
   addComment: (resourceId: string, text: string) => Promise<void>;
   toggleLike: (resourceId: string) => Promise<void>;
@@ -182,15 +182,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = useCallback(() => signOut(auth), []);
 
   // 📝 Add a story
-  const addStory = useCallback(async (storyData: Pick<Resource, 'title' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName' | 'category' | 'status'>) => {
+  const addStory = useCallback(async (storyData: Pick<Resource, 'title' | 'shortDescription' | 'content' | 'summary' | 'tags' | 'fileName' | 'category' | 'status'>, imageFile: File | null) => {
     if (!currentUser) throw new Error("User not authenticated");
+
+    let imageUrl = `https://picsum.photos/seed/${Date.now()}/400/300`;
+
+    if (imageFile) {
+      const storage = getStorage();
+      const storageRef = ref(storage, `story_images/${Date.now()}_${imageFile.name}`);
+      await uploadBytes(storageRef, imageFile);
+      imageUrl = await getDownloadURL(storageRef);
+    }
 
     const newStory: Omit<Resource, 'id'> = {
       ...storyData,
       authorId: currentUser.uid,
       authorName: currentUser.name ?? undefined,
       authorImageUrl: currentUser.imageUrl,
-      imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`,
+      imageUrl,
       createdAt: serverTimestamp(),
     };
     await addDoc(collection(db, "stories"), newStory);
