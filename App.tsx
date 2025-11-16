@@ -52,7 +52,14 @@ const App: React.FC = () => {
   
   return (
     <HashRouter>
-      <div className="flex flex-col min-h-screen bg-gray-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200">
+      <div 
+        className="flex flex-col min-h-screen bg-gray-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200"
+        style={{
+          backgroundImage: `url(/background.jpg)`,
+          backgroundSize: 'cover',
+          backgroundAttachment: 'fixed',
+        }}
+      >
         <Navbar />
         <MainContent />
         <Footer />
