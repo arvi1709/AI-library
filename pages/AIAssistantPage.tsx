@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { ChatMessage } from '../types';
 import { MessageAuthor } from '../types';
@@ -16,7 +15,10 @@ const AIAssistantPage: React.FC = () => {
 
   // Function to find relevant stories from the library
   const findRelevantStories = useCallback((userMessage: string) => {
-    if (!stories || stories.length === 0) return [];
+    if (!stories || stories.length === 0) {
+      console.log("No stories available for searching.");
+      return [];
+    }
     
     const messageLower = userMessage.toLowerCase();
     const publishedStories = stories.filter(s => s.status === 'published');
