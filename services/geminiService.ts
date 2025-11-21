@@ -1,5 +1,3 @@
-
-
 /// <reference types="vite/client" />
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -34,6 +32,45 @@ export const summarizeText = async (text: string): Promise<string> => {
   } catch (error) {
     console.error("Error summarizing text:", error);
     return "Sorry, I couldn't generate a summary. Please try again later.";
+  }
+};
+
+export const processTextContent = async (
+  text: string
+): Promise<{ content: string; tags: string[]; summary: string; categories: string[] }> => {
+  try {
+    const textPart = {
+      text: `CRITICAL INSTRUCTION: The user has provided the following text directly. Use it as the source content. Then: generate a concise summary, generate 5-7 keywords/tags, suggest 1-3 categories. Return JSON with: 'content' (the original provided text), 'summary', 'tags', 'categories'.\n\n---\n\n${text}`,
+    };
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: { parts: [textPart] },
+      config: {
+        temperature: 0.2,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            content: { type: Type.STRING },
+            summary: { type: Type.STRING },
+            tags: { type: Type.ARRAY, items: { type: Type.STRING } },
+            categories: { type: Type.ARRAY, items: { type: Type.STRING } },
+          },
+        },
+      },
+    });
+
+    const jsonText = response.text ?? "{}";
+    return JSON.parse(jsonText);
+  } catch (error) {
+    console.error("Error processing text:", error);
+    return {
+      content: text, // Return original text on error
+      tags: [],
+      summary: "Sorry, a summary could not be generated for this text.",
+      categories: [],
+    };
   }
 };
 
