@@ -48,6 +48,26 @@ export const RESOURCES: Resource[] = [
   },
 ];
 
+export const MASTER_CATEGORIES = [
+  "Personal Narrative",
+  "Identity",
+  "Gender",
+  "LGBTQ+",
+  "Migration",
+  "Culture",
+  "Social Justice",
+  "Activism",
+  "Poetry",
+  "Hindi Literature",
+  "Caste",
+  "Education",
+  "Technology",
+  "History",
+  "Art",
+  "Science",
+  "Philosophy"
+];
+
 export const TEAM_MEMBERS: TeamMember[] = [
   {
     name: 'Arvind Kumar',

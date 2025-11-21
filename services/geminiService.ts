@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import { GoogleGenAI, Type } from "@google/genai";
+import { MASTER_CATEGORIES } from "../constants";
 
 // ✅ Explicitly assert the API key is a string
 const apiKey = import.meta.env.VITE_API_KEY as string | undefined;
@@ -40,7 +41,11 @@ export const processTextContent = async (
 ): Promise<{ content: string; tags: string[]; summary: string; categories: string[] }> => {
   try {
     const textPart = {
-      text: `CRITICAL INSTRUCTION: The user has provided the following text directly. Use it as the source content. Then: generate a concise summary, generate 5-7 keywords/tags, suggest 1-3 categories. Return JSON with: 'content' (the original provided text), 'summary', 'tags', 'categories'.\n\n---\n\n${text}`,
+      text: `CRITICAL INSTRUCTION: The user has provided text. Use it as the source content. Then: 
+      1. Generate a concise summary.
+      2. Generate 5-7 relevant keywords/tags.
+      3. Suggest 1-3 categories from the following master list: [${MASTER_CATEGORIES.join(', ')}].
+      Return JSON with: 'content' (the original text), 'summary', 'tags', 'categories'.\n\n---\n\n${text}`,
     };
 
     const response = await ai.models.generateContent({
@@ -81,7 +86,12 @@ export const processFileContent = async (
     const fileData = await fileToBase64(file);
     const filePart = { inlineData: { data: fileData, mimeType: file.type } };
     const textPart = {
-      text: "CRITICAL INSTRUCTION: Extract the EXACT full text content from this file, preserving EVERY detail exactly as it appears, including: (1) ALL spacing between stanzas/paragraphs - if there are blank lines, keep them exactly; (2) ALL line breaks and paragraph breaks; (3) ALL indentation and whitespace; (4) ALL punctuation marks even if missing or incorrect; (5) ALL special characters and symbols; (6) Exact spacing within lines (single, double, or multiple spaces). Do NOT add, remove, compress, expand, fix, correct, edit, rephrase, or modify anything. Extract character-for-character exactly as the original. If it's audio, transcribe word-for-word. If it's a document, extract all text with exact formatting and spacing preserved. Then: generate a concise summary, generate 5-7 keywords/tags, suggest 1-3 categories. Return JSON with: 'content' (extracted exactly preserving all spacing and paragraph breaks), 'summary', 'tags', 'categories'.",
+      text: `CRITICAL INSTRUCTION: First, extract the full text content from this file. If it's audio, transcribe it. Preserve all original formatting. 
+      Then, perform the following tasks:
+      1. Generate a concise summary of the extracted text.
+      2. Generate 5-7 relevant keywords/tags.
+      3. Suggest 1-3 categories from this master list: [${MASTER_CATEGORIES.join(', ')}].
+      Return JSON with: 'content' (the extracted text), 'summary', 'tags', 'categories'.`,
     };
 
     const response = await ai.models.generateContent({

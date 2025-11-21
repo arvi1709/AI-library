@@ -5,6 +5,28 @@ import ResourceCard from '../components/ResourceCard';
 import type { Resource } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
+const normalizeCategory = (category: string): string => {
+  const normalized = category.trim().replace(/\s+/g, ' ').toLowerCase();
+  
+  const MAPPINGS: { [key: string]: string } = {
+    'poem': 'Poetry',
+    'कविता': 'Poetry',
+    'personalnarrative': 'Personal Narrative',
+    'hindi literature': 'Hindi Literature'
+    // Add other mappings as needed
+  };
+
+  // Find the cannonical name for the normalized category
+  const cannonicalName = MAPPINGS[normalized];
+  if(cannonicalName) return cannonicalName;
+
+  // If no mapping, capitalize the first letter of each word
+  return category
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const LibraryPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,7 +49,11 @@ const LibraryPage: React.FC = () => {
     return [...RESOURCES, ...publishedStories];
   }, [stories]);
 
-  const categories = useMemo(() => ['All', ...Array.from(new Set(allResources.flatMap(r => Array.isArray(r.category) ? r.category : [r.category])))], [allResources]);
+  const categories = useMemo(() => {
+    const allCats = allResources.flatMap(r => Array.isArray(r.category) ? r.category : [r.category]);
+    const normalizedCats = allCats.map(normalizeCategory);
+    return ['All', ...Array.from(new Set(normalizedCats))].sort();
+  }, [allResources]);
   
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -43,7 +69,10 @@ const LibraryPage: React.FC = () => {
 
   const filteredResources = useMemo((): Resource[] => {
     return allResources.filter(resource => {
-      const matchesCategory = selectedCategory === 'All' || (Array.isArray(resource.category) ? resource.category.includes(selectedCategory) : resource.category === selectedCategory);
+      const resourceCategories = Array.isArray(resource.category) ? resource.category : [resource.category];
+      const normalizedResourceCats = resourceCategories.map(normalizeCategory);
+      
+      const matchesCategory = selectedCategory === 'All' || normalizedResourceCats.includes(selectedCategory);
       const lowerCaseQuery = searchQuery.toLowerCase();
       const matchesSearch = 
         searchQuery.trim() === '' ||
