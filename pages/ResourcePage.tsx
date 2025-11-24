@@ -136,7 +136,11 @@ const ResourcePage: React.FC = () => {
           ))}
         </div>
         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">{resource.title}</h1>
-        {resource.authorName && <p className="text-lg text-slate-600 dark:text-slate-300 mb-4">By {resource.authorName}</p>}
+        {resource.authorId && resource.authorName && (
+          <p className="text-lg text-slate-600 dark:text-slate-300 mb-4">
+            By <Link to={`/profile/${resource.authorId}`} className="hover:underline font-semibold">{resource.authorName}</Link>
+          </p>
+        )}
         <img src={resource.imageUrl} alt={resource.title} className="w-full h-64 object-cover rounded-lg mb-6 shadow-md" loading="lazy" decoding="async"/>
         
         {resource.tags && resource.tags.length > 0 && (

@@ -1,10 +1,20 @@
-
-
 export interface User {
   uid: string;
   name: string | null;
   email: string | null;
   imageUrl: string;
+  followers?: string[];
+  following?: string[];
+  notifications?: Notification[];
+}
+
+export interface Notification {
+  id: string;
+  type: 'new_story' | 'story_reported';
+  message: string;
+  timestamp: number;
+  read: boolean;
+  relatedStoryId?: string;
 }
 
 export interface Resource {

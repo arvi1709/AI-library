@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import type { Notification } from '../types';
 
 const ThemeToggleButton: React.FC = () => {
     const { theme, setTheme } = useTheme();
@@ -42,6 +43,55 @@ const ThemeToggleButton: React.FC = () => {
     );
 };
 
+const NotificationBell: React.FC = () => {
+    const { currentUser, markNotificationsAsRead } = useAuth();
+    const [isOpen, setIsOpen] = useState(false);
+
+    const unreadCount = useMemo(() => {
+        return currentUser?.notifications?.filter(n => !n.read).length || 0;
+    }, [currentUser?.notifications]);
+
+    const handleToggle = () => {
+      setIsOpen(!isOpen);
+      if (!isOpen && unreadCount > 0) {
+        markNotificationsAsRead();
+      }
+    };
+
+    return (
+        <div className="relative">
+            <button
+                onClick={handleToggle}
+                className="p-2 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                </svg>
+                {unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>
+                )}
+            </button>
+            {isOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-lg shadow-xl border dark:border-slate-700 overflow-hidden">
+                    <div className="py-2 px-4 font-semibold text-slate-800 dark:text-slate-200">Notifications</div>
+                    <div className="max-h-96 overflow-y-auto">
+                        {currentUser?.notifications && currentUser.notifications.length > 0 ? (
+                            [...currentUser.notifications].reverse().map((notif: Notification) => (
+                                <div key={notif.id} className={`p-4 border-t dark:border-slate-700 ${!notif.read ? 'bg-slate-50 dark:bg-slate-700/50' : ''}`}>
+                                    <p className="text-sm text-slate-600 dark:text-slate-300">{notif.message}</p>
+                                    <span className="text-xs text-slate-400">{new Date(notif.timestamp).toLocaleString()}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="p-4 text-sm text-slate-500">No new notifications.</p>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -76,6 +126,7 @@ const Navbar: React.FC = () => {
                   <NavLink to="/add-story" className={getLinkClass}>Add Story</NavLink>
                   <NavLink to="/profile" className={getLinkClass}>My Profile</NavLink>
                   <button onClick={logout} className={`${linkClasses} bg-red-500/10 text-red-600 hover:text-red-700 hover:bg-red-500/20`}>Logout</button>
+                  <NotificationBell />
                 </>
               ) : (
                   <Link to="/auth" className={`${linkClasses} bg-brand-navy/10 text-brand-navy`}>
@@ -87,6 +138,7 @@ const Navbar: React.FC = () => {
           </div>
           <div className="-mr-2 flex md:hidden items-center gap-2">
              <ThemeToggleButton />
+             {currentUser && <NotificationBell />}
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"

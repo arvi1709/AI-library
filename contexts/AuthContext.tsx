@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { 
-  collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, setDoc, updateDoc, getDoc, deleteDoc 
+  collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, setDoc, updateDoc, getDoc, deleteDoc, where, getDocs, arrayRemove
 } from "firebase/firestore";
 import { db, auth } from "../services/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -12,7 +12,7 @@ import {
   updateProfile,
   deleteUser
 } from 'firebase/auth';
-import type { User, Resource, Comment, Report, EmpathyRating } from '../types';
+import type { User, Resource, Comment, Report, EmpathyRating, Notification } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { containsProfanity, getProfanityErrorMessage } from '../services/profanityFilter';
 
@@ -37,6 +37,8 @@ interface AuthContextType {
   updateUserProfile: (name: string, imageFile: File | null) => Promise<void>;
   toggleBookmark: (resourceId: string) => Promise<void>;
   rateEmpathy: (resourceId: string, rating: number) => Promise<void>;
+  toggleFollow: (targetUserId: string) => Promise<void>;
+  markNotificationsAsRead: () => Promise<void>;
   deleteComment: (commentId: string) => Promise<void>;
   deleteStory: (storyId: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -55,42 +57,58 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [empathyRatings, setEmpathyRatings] = useState<Record<string, EmpathyRating[]>>({});
 
-    // 🔐 Handle Authentication State
+  // 🔐 Handle Authentication State
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         const userDocRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userDocRef);
+        
+        // Set up a real-time listener for the current user's document
+        const unsubscribeSnapshot = onSnapshot(userDocRef, (snap) => {
+          let name = user.displayName || user.email?.split('@')[0] || 'User';
+          let imageUrl = user.photoURL || `https://picsum.photos/seed/${user.uid}/200/200`;
+          let bookmarks: string[] = [];
+          let followers: string[] = [];
+          let following: string[] = [];
+          let notifications: Notification[] = [];
 
-        let name = user.displayName || user.email?.split('@')[0] || 'User';
-        let imageUrl = user.photoURL || `https://picsum.photos/seed/${user.uid}/200/200`;
-        let bookmarks: string[] = [];
+          if (snap.exists()) {
+            const data = snap.data();
+            name = data.name || name;
+            imageUrl = data.imageUrl || imageUrl;
+            bookmarks = data.bookmarks || [];
+            followers = data.followers || [];
+            following = data.following || [];
+            notifications = data.notifications || [];
+          } else {
+            // This part should rarely run after the initial signup, but it's good for safety.
+            setDoc(userDocRef, {
+              uid: user.uid,
+              name,
+              email: user.email,
+              imageUrl,
+              bookmarks: [],
+              followers: [],
+              following: [],
+              notifications: []
+            }, { merge: true });
+          }
+          
+          setCurrentUser({ uid: user.uid, email: user.email, name, imageUrl, followers, following, notifications });
+          setBookmarks(bookmarks);
+          setLoading(false);
+        });
 
-        if (snap.exists()) {
-          const data = snap.data();
-          name = data.name || name;
-          imageUrl = data.imageUrl || imageUrl;
-          bookmarks = data.bookmarks || [];
-        } else {
-          // Create user doc if it doesn't exist, ensuring all fields are present
-          await setDoc(userDocRef, {
-            uid: user.uid,
-            name,
-            email: user.email,
-            imageUrl,
-            bookmarks: []
-          }, { merge: true });
-        }
+        return () => unsubscribeSnapshot(); // Cleanup the snapshot listener when auth state changes
 
-        setCurrentUser({ uid: user.uid, email: user.email, name, imageUrl });
-        setBookmarks(bookmarks);
       } else {
         setCurrentUser(null);
         setBookmarks([]);
+        setLoading(false);
       }
-      setLoading(false);
     });
-    return unsubscribe;
+
+    return () => unsubscribeAuth(); // Cleanup the auth listener
   }, []);
 
   // 🔁 Real-time sync for all collections
@@ -173,7 +191,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       name,
       email: user.email,
       imageUrl,
-      bookmarks: []
+      bookmarks: [],
+      followers: [],
+      following: [],
+      notifications: []
     });
 
     return userCredential;
@@ -202,7 +223,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       imageUrl,
       createdAt: serverTimestamp(),
     };
-    await addDoc(collection(db, "stories"), newStory);
+    const docRef = await addDoc(collection(db, "stories"), newStory);
+
+    // Create notifications for followers
+    if (currentUser.followers && currentUser.followers.length > 0) {
+      currentUser.followers.forEach(async (followerId) => {
+        const followerRef = doc(db, "users", followerId);
+        const followerSnap = await getDoc(followerRef);
+        if (followerSnap.exists()) {
+          const followerData = followerSnap.data();
+          const newNotification: Notification = {
+            id: `${docRef.id}-${Date.now()}`,
+            type: 'new_story',
+            message: `${currentUser.name} published a new story: "${storyData.title}"`,
+            timestamp: Date.now(),
+            read: false,
+            relatedStoryId: docRef.id,
+          };
+          await updateDoc(followerRef, {
+            notifications: [...(followerData.notifications || []), newNotification]
+          });
+        }
+      });
+    }
   }, [currentUser]);
 
   // ✏️ Update a story in Firestore
@@ -267,7 +310,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!currentUser) return;
     const report = { resourceId, reporterId: currentUser.uid, resourceTitle, timestamp: Date.now() };
     await addDoc(collection(db, "reports"), report);
-  }, [currentUser]);
+    
+    // Notify the author of the story
+    const story = stories.find(s => s.id === resourceId);
+    if (story && story.authorId) {
+      const authorRef = doc(db, "users", story.authorId);
+      const authorSnap = await getDoc(authorRef);
+      if (authorSnap.exists()) {
+        const authorData = authorSnap.data();
+        const newNotification: Notification = {
+          id: `${resourceId}-report-${Date.now()}`,
+          type: 'story_reported',
+          message: `Your story "${resourceTitle}" has been reported.`,
+          timestamp: Date.now(),
+          read: false,
+          relatedStoryId: resourceId,
+        };
+        await updateDoc(authorRef, {
+          notifications: [...(authorData.notifications || []), newNotification]
+        });
+      }
+    }
+  }, [currentUser, stories]);
 
   // 🔖 Toggle bookmark (stored per-user)
   const toggleBookmark = useCallback(async (resourceId: string) => {
@@ -302,6 +366,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
     }, [currentUser]);
 
+  // 🧑‍🤝‍🧑 Toggle Follow
+  const toggleFollow = useCallback(async (targetUserId: string) => {
+    if (!currentUser || currentUser.uid === targetUserId) return;
+
+    const currentUserRef = doc(db, "users", currentUser.uid);
+    const targetUserRef = doc(db, "users", targetUserId);
+
+    const isFollowing = currentUser.following?.includes(targetUserId);
+
+    // Update current user's following list
+    await updateDoc(currentUserRef, {
+      following: isFollowing 
+        ? (currentUser.following || []).filter(id => id !== targetUserId)
+        : [...(currentUser.following || []), targetUserId]
+    });
+
+    // Update target user's followers list
+    const targetUserSnap = await getDoc(targetUserRef);
+    if (targetUserSnap.exists()) {
+      const targetUserData = targetUserSnap.data();
+      await updateDoc(targetUserRef, {
+        followers: isFollowing
+          ? (targetUserData.followers || []).filter((id: string) => id !== currentUser.uid)
+          : [...(targetUserData.followers || []), currentUser.uid]
+      });
+    }
+  }, [currentUser]);
+
+  // 🔔 Mark Notifications as Read
+  const markNotificationsAsRead = useCallback(async () => {
+    if (!currentUser) return;
+
+    const userRef = doc(db, "users", currentUser.uid);
+    const updatedNotifications = currentUser.notifications?.map(n => ({ ...n, read: true })) || [];
+    
+    await updateDoc(userRef, { notifications: updatedNotifications });
+
+    setCurrentUser(prev => prev ? { ...prev, notifications: updatedNotifications } : null);
+  }, [currentUser]);
+
   const deleteComment = useCallback(async (commentId: string) => {
     if (!currentUser) {
       console.error("User must be logged in to delete a comment.");
@@ -325,29 +429,80 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) {
       throw new Error("No user is currently signed in.");
     }
-
+  
     try {
-      // 1. Delete profile image from Storage
+      // Step 1: Find all stories, comments, likes, and reports by the user
+      const storiesQuery = query(collection(db, "stories"), where("authorId", "==", user.uid));
+      const storiesSnapshot = await getDocs(storiesQuery);
+      const storyIdsToDelete = storiesSnapshot.docs.map(doc => doc.id);
+  
+      // Step 2: Concurrently delete all associated data
+      const deletePromises: Promise<any>[] = [];
+  
+      // Delete stories and their images
+      storiesSnapshot.forEach(storyDoc => {
+        deletePromises.push(deleteDoc(storyDoc.ref));
+        const storyData = storyDoc.data();
+        if (storyData.imageUrl && storyData.imageUrl.includes('firebasestorage')) {
+          const imageRef = ref(getStorage(), storyData.imageUrl);
+          deletePromises.push(deleteObject(imageRef).catch(err => console.warn("Image delete failed:", err)));
+        }
+      });
+  
+      // Delete comments, likes, and reports related to the stories
+      if (storyIdsToDelete.length > 0) {
+        const commentsQuery = query(collection(db, "comments"), where("resourceId", "in", storyIdsToDelete));
+        deletePromises.push(getDocs(commentsQuery).then(snapshot => snapshot.forEach(doc => deleteDoc(doc.ref))));
+        
+        storyIdsToDelete.forEach(storyId => {
+          deletePromises.push(deleteDoc(doc(db, "likes", storyId)));
+          deletePromises.push(deleteDoc(doc(db, "reports", storyId)));
+        });
+      }
+      
+      // Step 3: Clean up social graph (followers/following)
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        // Remove this user from their followers' "following" lists
+        (userData.followers || []).forEach((followerId: string) => {
+          const followerRef = doc(db, "users", followerId);
+          deletePromises.push(updateDoc(followerRef, { following: arrayRemove(user.uid) }));
+        });
+        
+        // Remove this user from their following's "followers" lists
+        (userData.following || []).forEach((followingId: string) => {
+          const followingRef = doc(db, "users", followingId);
+          deletePromises.push(updateDoc(followingRef, { followers: arrayRemove(user.uid) }));
+        });
+      }
+
+      // Execute all deletions in parallel
+      await Promise.all(deletePromises);
+  
+      // Step 4: Delete the user's profile and authentication record
+      await deleteDoc(userDocRef);
       const storage = getStorage();
       const imageRef = ref(storage, `profile_images/${user.uid}`);
       try {
         await deleteObject(imageRef);
       } catch (error: any) {
         if (error.code !== 'storage/object-not-found') {
-          console.error("Error deleting profile image:", error);
+          console.warn("Could not delete profile image:", error);
         }
       }
-
-      // 2. Delete user document from Firestore
-      const userDocRef = doc(db, "users", user.uid);
-      await deleteDoc(userDocRef);
-
-      // 3. Delete the user from Firebase Authentication
       await deleteUser(user);
-
-    } catch (error) {
+  
+    } catch (error: any) {
       console.error("Error deleting account:", error);
-      throw error;
+      if (error.code === 'auth/requires-recent-login') {
+        alert("This is a sensitive operation. Please log in again to confirm account deletion.");
+        await signOut(auth);
+      } else {
+        throw new Error("An unexpected error occurred while deleting your account.");
+      }
     }
   }, []);
 
@@ -402,6 +557,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     deleteComment,
     deleteStory,
     deleteAccount,
+    toggleFollow,
+    markNotificationsAsRead,
   }), [currentUser, loading, users, stories, comments, likes, reports, bookmarks, empathyRatings, addStory, updateStory, addComment, toggleLike, reportContent, updateUserProfile, toggleBookmark, rateEmpathy, deleteComment, deleteStory, deleteAccount]);
 
   return (

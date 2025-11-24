@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import ResourceCard from '../components/ResourceCard';
 import { RESOURCES } from '../constants';
 import LoadingSpinner from '../components/LoadingSpinner';
+import FollowListModal from '../components/FollowListModal';
 
 const ProfilePage: React.FC = () => {
-  const { currentUser, stories, comments, likes, reports, updateUserProfile, bookmarks, deleteStory, deleteAccount } = useAuth();
+  const { currentUser, users, stories, comments, likes, reports, updateUserProfile, bookmarks, deleteStory, deleteAccount, toggleFollow } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(currentUser?.name || '');
@@ -14,6 +15,7 @@ const ProfilePage: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [modalState, setModalState] = useState<{isOpen: boolean; title: 'Followers' | 'Following'; userIds: string[]}>({isOpen: false, title: 'Followers', userIds: []});
   
   const allResources = useMemo(() => {
     return [...RESOURCES, ...stories];
@@ -85,9 +87,11 @@ const ProfilePage: React.FC = () => {
     if (window.confirm("Are you absolutely sure you want to delete your account? This will permanently erase all your data, including stories and comments. This action cannot be undone.")) {
       try {
         await deleteAccount();
-        // The onAuthStateChanged listener will handle navigation
-      } catch (error) {
-        setError("Failed to delete account. You may need to log in again to perform this action.");
+        // The onAuthStateChanged listener in AuthContext will handle logout and navigation
+      } catch (error: any) {
+        // The error alert is now handled within AuthContext, 
+        // but we can still log it or set a local error state if needed.
+        setError(error.message || "An unexpected error occurred.");
         console.error(error);
       }
     }
@@ -186,6 +190,14 @@ const ProfilePage: React.FC = () => {
                 <div>
                     <h1 className="text-3xl font-bold text-brand-navy">{currentUser.name}</h1>
                     <p className="text-slate-600 dark:text-slate-400">{currentUser.email}</p>
+                    <div className="flex gap-4 mt-2 text-slate-600 dark:text-slate-400">
+                      <button onClick={() => setModalState({isOpen: true, title: 'Followers', userIds: currentUser.followers || []})} className="hover:underline">
+                        <span className="font-bold text-slate-800 dark:text-slate-200">{currentUser.followers?.length || 0}</span> Followers
+                      </button>
+                      <button onClick={() => setModalState({isOpen: true, title: 'Following', userIds: currentUser.following || []})} className="hover:underline">
+                        <span className="font-bold text-slate-800 dark:text-slate-200">{currentUser.following?.length || 0}</span> Following
+                      </button>
+                    </div>
                 </div>
             </div>
             <button onClick={() => setIsEditing(true)} className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 font-bold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center gap-2 self-start sm:self-center">
@@ -198,6 +210,13 @@ const ProfilePage: React.FC = () => {
         </div>
       )}
       
+      <FollowListModal 
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({...prev, isOpen: false}))}
+        title={modalState.title}
+        userIds={modalState.userIds}
+      />
+
       <div className="mb-12">
         <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-200">My Stories</h2>

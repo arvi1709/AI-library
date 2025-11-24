@@ -16,6 +16,7 @@ const AddStoryPage = lazy(() => import('./pages/AddStoryPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const EditStoryPage = lazy(() => import('./pages/EditStoryPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
+const PublicProfilePage = lazy(() => import('./pages/PublicProfilePage'));
 
 const PageLoader: React.FC = () => (
   <div className="flex justify-center items-center py-20">
@@ -36,6 +37,7 @@ const MainContent: React.FC = () => {
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/add-story" element={<AddStoryPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/:userId" element={<PublicProfilePage />} />
           <Route path="/edit-story/:id" element={<EditStoryPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
